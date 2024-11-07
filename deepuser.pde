@@ -1,12 +1,22 @@
 PFont font;
+PImage img;
 
 void setup() {
   size(400, 1000);  // 캔버스 크기
   background(50, 50, 50);  // 어두운 배경색
 
+  // 바탕이미지 추가
+  img = loadImage("deepuser.png");  
+  smooth();
+
   // 폰트 설정 (data 폴더에 AppleSDGothicNeo.ttc가 있다고 가정)
   font = createFont("AppleSDGothicNeo.ttc", 14);
   textFont(font);
+}
+
+void draw() {
+  // 이미지 배경을 그리기 위한 코드 (draw의 첫 줄에 배치)
+  image(img, 0, 0, width, height);
 
   // 상단 패널: 담배 소비 추적 정보
   fill(255, 255, 255, 220);  // 약간 투명한 흰색
@@ -106,8 +116,4 @@ void setup() {
     int y = 640 + ((i - 1) / 7) * 15;
     text(i, x, y);
   }
-}
-
-void draw() {
-  // 정적 UI, draw 함수는 필요하지 않음
 }
