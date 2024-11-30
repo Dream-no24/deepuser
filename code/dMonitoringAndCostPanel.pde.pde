@@ -23,25 +23,13 @@ void drawMonitoringAndCostPanel() {
     // 큰 박스 (투명한 배경)
     fill(0, 0, 0, 150);
     noStroke();
-    rect(10 + x, 400, 340, 160, 20);
+    rect(10 + x, 400, 340, 350, 20); // 반투명 검은 박스
 
     // 모니터링 박스
-    fill(255, 255, 255, 230);
-    rect(10 + x, 410, 320, 60, 20);
-    fill(0);
-    textSize(16);
-    text("모니터링", 20 + x, 430);
-    textSize(12);
-    text(shops[i], 20 + x, 450);
+    drawPanel(x, 410, "모니터링", shops[i], 120);
 
-    // 코스트 박스
-    fill(255, 255, 255, 230);
-    rect(10 + x, 480, 320, 60, 20);
-    fill(0);
-    textSize(16);
-    text("코스트 정보", 20 + x, 500);
-    textSize(12);
-    text("매출 10000원 당 4294원", 20 + x, 520);
+    // 코스트 박스 (세로 길이 더 길게 설정)
+    drawPanel(x, 550, "코스트 정보", "매출 10000원 당 4294원", 180);
   }
 
   popMatrix();
@@ -52,6 +40,19 @@ void drawMonitoringAndCostPanel() {
   targetSwipeX = constrain(targetSwipeX, minSwipeX, maxSwipeX);
 }
 
+// 패널 내용 출력 함수
+void drawPanel(float offsetX, float y, String title, String content, float panelHeight) {
+  float panelWidth = 300; // 하얀 박스의 가로 길이
+  fill(255, 255, 255, 230);
+  rect(30 + offsetX, y, panelWidth, panelHeight, 20); // 하얀 박스 (세로 길이 조정 가능)
+
+  fill(0);
+  textSize(16);
+  text(title, 40 + offsetX, y + 20); // 제목 텍스트
+  textSize(11);
+  text(content, 43 + offsetX, y + 40); // 내용 텍스트
+}
+
 // 스와이프 활성화 여부 확인
 boolean isSwipeActive() {
   return swipeActive;
@@ -59,7 +60,7 @@ boolean isSwipeActive() {
 
 // 스와이프 핸들링 함수
 boolean handleSwipe(float mouseX, float mouseY) {
-  if (mouseY > 400 && mouseY < 560) { // 스와이프 활성화 영역
+  if (mouseY > 400 && mouseY < 700) { // 스와이프 활성화 영역 확장
     swipeActive = true;
     return true;
   }

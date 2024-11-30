@@ -28,7 +28,7 @@ void draw() {
   drawIssueAndSchedulePanels();
   drawMonitoringAndCostPanel(); // MonitoringAndCostPanel의 함수 호출
   drawCalendarPanel();
-
+  drawTablePanel();
   popMatrix();
 }
 
