@@ -8,7 +8,7 @@ void setup() {
   size(360, 800);
   background(50, 50, 50);
   img = loadImage("../data/deepuser.png");
-  font = createFont("../data/AppleSDGothicNeo.ttc", 14);
+  font = createFont("../data/AppleSDGothicNeo.ttc", 48, true);
   textFont(font);
 }
 
