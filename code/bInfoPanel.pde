@@ -1,45 +1,34 @@
-void drawInfoPanel() {
-  fill(255, 255, 255, 200);
-  noStroke();
-  rect(10, 10, 340, 180, 20);  
+void drawInfoPanel(float infoPanelYOffset) {
 
-  fill(255);
-  ellipse(72, 72, 100, 100);
+  // Cigarette Manager 이미지 불러오기 및 배경에 그리기
+  PImage cigaretteManagerImg = loadImage("../data/CigaretteManager.png");
+  image(cigaretteManagerImg, 11.5, infoPanelYOffset, 350, 212);
 
+  // 지정된 텍스트만 이미지 위에 그리기
+  fill(0); // 검정색 텍스트
 
-  fill(0);
-  textSize(16);
-  textAlign(CENTER, CENTER);
-  text("Today", 70, 52);
+  // "4"
   textSize(60);
-  text("4", 70, 88);
+  textAlign(CENTER, CENTER);
+  text("4", 70, infoPanelYOffset + 88);
 
-  
+  // "1년간 폐에 쌓인 유독물질 12.5g"
   textSize(14);
-  text("이번 달 총", 210, 35);
-  text("1년 간 총", 210, 55);
+  text("1년간 폐에 쌓인 유독물질 12.5g", 240, infoPanelYOffset + 110);
+
+  // "79"
   textSize(18);
-  text("79", 285, 35);
-  text("683", 275, 55);
-  textSize(15);
-  text("개비", 310, 35);
-  text("개비", 310, 55);
+  text("79", 285, infoPanelYOffset + 35);
 
-  fill(100);
+  // "683"
+  textSize(18);
+  text("683", 275, infoPanelYOffset + 55);
+
+  // "현재 목표: 7개 / day" 중 '7'만
   textSize(12);
-  text("이렇게 살다간...", 290, 90);
-  
-  fill(0);
-  textSize(14);
-  text("1년간 폐에 쌓인 유독물질 12.5g", 240, 110);
-  
-  fill(240);
-  rect(30, 160, 300, 10, 5);
-  fill(100);
-  rect(30, 160, 220, 10, 5);
-  
-  fill(0);
+  text("7", 100, infoPanelYOffset + 145);
+
+  // "다음 목표: 6개 / day" 중 '6'만
   textSize(12);
-  text("현재 목표: 7개 / day", 80, 145);
-  text("다음 목표: 6개 / day", 280, 145);
+  text("6", 300, infoPanelYOffset + 145);
 }

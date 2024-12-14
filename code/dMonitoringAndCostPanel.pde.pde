@@ -1,83 +1,110 @@
+// 이미지 변수 선언
+PImage monitoringImg;
+PImage costImg;
+
 // 스와이프 관련 변수
 float swipeX = 0;  // 현재 스와이프 위치
 float targetSwipeX = 0;  // 목표 스와이프 위치
-boolean swipeActive = false;  // 스와이프 활성화 여부
 float swipeSensitivity = 0.1;  // 스와이프 감도
+int currentShopIndex = 0;  // 현재 점포 인덱스
 String[] shops = {
   "천안시 페터널\n습도 52%, 온도 27도, 조도 55lx, 물 2.5L",
   "개포동 컨테이너\n습도 48%, 온도 26도, 조도 60lx, 물 3.0L",
   "남현동 컨테이너\n습도 55%, 온도 28도, 조도 50lx, 물 2.8L"
 };
 
+// setup에서 호출될 이미지 로드 함수
+void loadMonitoringAndCostImages() {
+  monitoringImg = loadImage("../data/monitoring.png");
+  costImg = loadImage("../data/TotalCostManager.png");
+}
+
 // 패널 그리기 함수
-void drawMonitoringAndCostPanel() {
-  // 부드러운 스와이프 처리
+void drawMonitoringAndCostPanel(float baseYOffset) {
+  // 스크롤과 정확히 동일한 수치로 이동 처리
   swipeX += (targetSwipeX - swipeX) * swipeSensitivity;
 
+  float panelY = baseYOffset; // 위치 조정
   pushMatrix();
-  translate(swipeX, 0); // 전체 패널 이동
+  translate(swipeX, 0);
 
   for (int i = 0; i < shops.length; i++) {
     float x = i * width; // 각 점포의 x 좌표
 
     // 큰 박스 (투명한 배경)
-    fill(0, 0, 0, 150);
+    fill(0, 0, 0, 60);
     noStroke();
-    rect(10 + x, 400, 340, 350, 20); // 반투명 검은 박스
+    rect(15 + x, panelY, 330, 350, 20); // 반투명 검은 박스
 
-    // 모니터링 박스
-    drawPanel(x, 410, "모니터링", shops[i], 120);
+    // 모니터링 박스에 이미지 추가
+    drawImagePanel(x + 6.6, panelY + 10, monitoringImg, shops[i]);
 
-    // 코스트 박스 (세로 길이 더 길게 설정)
-    drawPanel(x, 550, "코스트 정보", "매출 10000원 당 4294원", 180);
+    // 코스트 박스에 이미지 추가
+    drawImagePanel(x - 11.1, panelY + 110, costImg, "매출 10000원 당 4294원");
   }
 
   popMatrix();
 
-  // 스와이프 경계 제한
-  float minSwipeX = -(shops.length - 1) * width;
-  float maxSwipeX = 0;
-  targetSwipeX = constrain(targetSwipeX, minSwipeX, maxSwipeX);
+  // 좌우 버튼 그리기
+  drawSwipeButtons(baseYOffset + 150); // 버튼도 동일 스크롤 기준으로 이동
 }
 
-// 패널 내용 출력 함수
-void drawPanel(float offsetX, float y, String title, String content, float panelHeight) {
-  float panelWidth = 300; // 하얀 박스의 가로 길이
-  fill(255, 255, 255, 230);
-  rect(30 + offsetX, y, panelWidth, panelHeight, 20); // 하얀 박스 (세로 길이 조정 가능)
+// 이미지를 포함한 패널 출력 함수
+void drawImagePanel(float offsetX, float y, PImage img, String content) {
+  if (img == null) {
+    println("이미지 로드 실패: 기본 배경을 사용합니다.");
+    return;
+  }
 
+  // 패널 너비 조건
+  float panelWidth = (img == costImg) ? 349 : 315;
+
+  // 이미지 비율에 따라 세로 길이 조정
+  float panelHeight = img.height * (panelWidth / img.width);
+
+  // 이미지 출력
+  image(img, 17.3 + offsetX, y, panelWidth, panelHeight);
+
+  // 텍스트 출력
   fill(0);
-  textSize(16);
-  text(title, 40 + offsetX, y + 20); // 제목 텍스트
   textSize(11);
-  text(content, 43 + offsetX, y + 40); // 내용 텍스트
+  text(content, 43 + offsetX, y + panelHeight + 10);
 }
+// 좌우 꺾쇠 버튼 그리기
+void drawSwipeButtons(float baseYOffset) {
+  fill(255);
+  textSize(20);
 
-// 스와이프 활성화 여부 확인
-boolean isSwipeActive() {
-  return swipeActive;
-}
+  float yOffset = baseYOffset; // 꺾쇠 버튼의 y 위치 계산
 
-// 스와이프 핸들링 함수
-boolean handleSwipe(float mouseX, float mouseY) {
-  if (mouseY > 400 && mouseY < 700) { // 스와이프 활성화 영역 확장
-    swipeActive = true;
-    return true;
+  // 왼쪽 버튼
+  if (currentShopIndex > 0) {
+    textAlign(CENTER, CENTER);
+    text("<", 7, yOffset); // 왼쪽 버튼 표시
   }
-  return false;
-}
 
-void handleSwipeDragged(MouseEvent event) {
-  if (swipeActive) {
-    targetSwipeX += mouseX - pmouseX; // 목표 스와이프 위치 변경
+  // 오른쪽 버튼
+  if (currentShopIndex < shops.length - 1) {
+    textAlign(CENTER, CENTER);
+    text(">", width - 7, yOffset); // 오른쪽 버튼 표시
   }
 }
 
-void handleSwipeReleased() {
-  if (swipeActive) {
-    // 가장 가까운 점포로 스냅
-    int closestIndex = round(targetSwipeX / -width);
-    targetSwipeX = -closestIndex * width;
-    swipeActive = false;
+// 좌우 버튼 클릭 처리
+void changePlacePressed(float baseYOffset) {
+  float yOffset = baseYOffset; // 꺾쇠 버튼의 y 위치 계산
+
+  // 왼쪽 버튼 클릭
+  if (mouseX > 0 && mouseX < 30 && mouseY > yOffset - 30 && mouseY < yOffset + 30 && currentShopIndex > 0) {
+    currentShopIndex--;
+    targetSwipeX = -currentShopIndex * width;
+    println("왼쪽 버튼 클릭 - currentShopIndex: " + currentShopIndex);
+  }
+
+  // 오른쪽 버튼 클릭
+  if (mouseX > 330 && mouseX < 360 && mouseY > yOffset - 30 && mouseY < yOffset + 30 && currentShopIndex < shops.length - 1) {
+    currentShopIndex++;
+    targetSwipeX = -currentShopIndex * width;
+    println("오른쪽 버튼 클릭 - currentShopIndex: " + currentShopIndex);
   }
 }
