@@ -63,9 +63,14 @@ void drawMonitoringAndCostPanel(float baseYOffset) {
   drawSwipeButtons(baseYOffset + 170);
 }
 
-// 버튼 상태 변수
-int selectedButtonIndex = -1; // 눌린 버튼 인덱스 (-1은 선택되지 않음)
-String[] buttonTexts = {"Button 1", "Button 2", "Button 3", "Button 4"}; // 버튼 텍스트
+int[] selectedSubButtonIndices = {1, 1, 1, 1}; // 각 그룹의 선택된 버튼 인덱스 (디폴트: 표준)
+String[][] subButtonTexts = {
+  {"절약", "표준", "최적"},
+  {"절약", "표준", "최적"},
+  {"절약", "표준", "최적"},
+  {"절약", "표준", "최적"}
+};
+
 
 void drawMonitoringText(float panelX, float panelY, float panelWidth, float panelHeight) {
   float sectionWidth = panelWidth / panelText.length; // 각 텍스트 블록의 폭
@@ -84,24 +89,30 @@ void drawMonitoringText(float panelX, float panelY, float panelWidth, float pane
     textSize(28); // 크기 복원
   }
 
-  // 버튼 텍스트 출력
-  drawTextButtons(panelX, panelY, panelWidth, panelHeight, sectionWidth);
+  drawSubButtons(panelX, panelY, panelWidth, panelHeight); // 버튼 그룹 출력
 }
 
-// 버튼 텍스트 출력
-void drawTextButtons(float panelX, float panelY, float panelWidth, float panelHeight, float sectionWidth) {
+void drawSubButtons(float panelX, float panelY, float panelWidth, float panelHeight) {
+  float sectionWidth = panelWidth / subButtonTexts.length; // 각 그룹의 폭
   textAlign(CENTER, CENTER);
+  
+  for (int group = 0; group < subButtonTexts.length; group++) {
+    float groupX = panelX + (group * sectionWidth); // 그룹 시작 X 좌표
+    float groupY = panelY + panelHeight / 2 - 90; // 버튼 그룹 Y 위치
+    float buttonSpacing = sectionWidth / 3; // 버튼 간 가로 간격
 
-  for (int i = 0; i < buttonTexts.length; i++) {
-    float x = panelX + (i * sectionWidth) + sectionWidth / 2; // 버튼 중앙 X 좌표
-    float y = panelY + panelHeight / 2 - 90; // 버튼 Y 좌표
+    for (int i = 0; i < subButtonTexts[group].length; i++) {
+      float buttonX = groupX + (i * buttonSpacing) + buttonSpacing / 2; // 버튼의 X 좌표
+      float buttonY = groupY; // 버튼의 Y 좌표
 
-    // 버튼 색상 및 크기 처리
-    textSize(selectedButtonIndex == i ? 24 : 18); // 강조 크기
-    fill(selectedButtonIndex == i ? color(255, 255, 0) : 255); // 강조된 버튼은 노란색
-    text(buttonTexts[i], x, y);
+      // 버튼 색상 및 강조 처리
+      textSize(selectedSubButtonIndices[group] == i ? 16 : 12); // 강조된 버튼 크기
+      fill(selectedSubButtonIndices[group] == i ? color(255, 255, 0) : 200); // 강조된 버튼은 노란색
+      text(subButtonTexts[group][i], buttonX, buttonY);
+    }
   }
 }
+
 
 // 이미지 출력 함수
 void drawImagePanel(float offsetX, float offsetY, PImage img) {

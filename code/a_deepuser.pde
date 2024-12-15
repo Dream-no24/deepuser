@@ -62,7 +62,6 @@ void drawBezel() {
   image(bezel, 0, 0, width, height); // 배젤 이미지 전체 크기 출력
 }
 
-// 마우스 클릭 이벤트
 void mousePressed() {
   // 기존 기능: 모니터링 및 코스트 패널 클릭
   float monitoringAndCostYOffset = 60 + 220 + 400 + pos;
@@ -70,22 +69,31 @@ void mousePressed() {
     changePlacePressed(monitoringAndCostYOffset - 35);
   }
 
-  // 추가된 기능: 버튼 클릭 이벤트 처리
-  float sectionWidth = 324 / buttonTexts.length;  // 각 버튼의 폭
-  float buttonY = monitoringAndCostYOffset - 120 + 20; // 버튼의 Y 위치
+  // 추가된 기능: 가로 정렬된 버튼 클릭 이벤트 처리
+  float panelWidth = 324; // 전체 패널의 너비324
+  float sectionWidth = panelWidth / 4; // 각 그룹의 폭 (4개 그룹 기준)
+  float groupY = monitoringAndCostYOffset - 95; // 버튼 그룹의 Y 위치
 
-  for (int i = 0; i < buttonTexts.length; i++) {
-    float buttonX = 19 + (i * sectionWidth) + sectionWidth / 2; // 버튼의 X 좌표
+  for (int group = 0; group < subButtonTexts.length; group++) { 
+    float groupX = 21 + (group * sectionWidth); // 그룹 시작 X 좌표
+    float buttonSpacing = sectionWidth / 3; // 각 버튼 간격 (가로)
 
-    // 터치 범위 확장 (X: ±70, Y: ±30으로 확장)
-    if (mouseX > buttonX - 10 && mouseX < buttonX + 10 && mouseY > buttonY - 10 && mouseY < buttonY + 10) {
-      selectedButtonIndex = i; // 눌린 버튼 인덱스 업데이트
-      println("Selected Button: " + buttonTexts[i]); // 클릭 디버깅 메시지
+    for (int i = 0; i < subButtonTexts[group].length; i++) {
+      float buttonX = groupX + (i * buttonSpacing) + buttonSpacing / 2; // 각 버튼의 X 좌표
+      float buttonY = groupY; // 버튼의 Y 좌표 (고정)
+
+      // 클릭 감지 영역 (X 범위: ±50, Y 범위: ±15)
+      if (mouseX > buttonX - 10 && mouseX < buttonX + 10 && mouseY > buttonY - 15 && mouseY < buttonY + 15) {
+        selectedSubButtonIndices[group] = i; // 해당 그룹의 선택된 버튼 인덱스 업데이트
+        println("Group " + group + " Button: " + subButtonTexts[group][i]); // 디버깅 메시지
+      }
     }
   }
 
   isLocked = true; // 스크롤 잠금 활성화
 }
+
+
 
 
 // 마우스 드래그 이벤트
