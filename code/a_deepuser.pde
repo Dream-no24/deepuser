@@ -61,7 +61,6 @@ void drawStatusBar() {
 void drawBezel() {
   image(bezel, 0, 0, width, height); // 배젤 이미지 전체 크기 출력
 }
-
 void mousePressed() {
   // 기존 기능: 모니터링 및 코스트 패널 클릭
   float monitoringAndCostYOffset = 60 + 220 + 400 + pos;
@@ -69,31 +68,54 @@ void mousePressed() {
     changePlacePressed(monitoringAndCostYOffset - 35);
   }
 
-  // 추가된 기능: 가로 정렬된 버튼 클릭 이벤트 처리
-  float panelWidth = 324; // 전체 패널의 너비324
+  // 기존 기능: 가로 정렬된 버튼 클릭 이벤트 처리
+  float panelWidth = 324; // 전체 패널의 너비
   float sectionWidth = panelWidth / 4; // 각 그룹의 폭 (4개 그룹 기준)
   float groupY = monitoringAndCostYOffset - 95; // 버튼 그룹의 Y 위치
 
   for (int group = 0; group < subButtonTexts.length; group++) { 
-    float groupX = 21 + (group * sectionWidth); // 그룹 시작 X 좌표
+    float groupX = 21 + (group * sectionWidth); // 각 그룹 시작 X 좌표
     float buttonSpacing = sectionWidth / 3; // 각 버튼 간격 (가로)
 
     for (int i = 0; i < subButtonTexts[group].length; i++) {
       float buttonX = groupX + (i * buttonSpacing) + buttonSpacing / 2; // 각 버튼의 X 좌표
       float buttonY = groupY; // 버튼의 Y 좌표 (고정)
 
-      // 클릭 감지 영역 (X 범위: ±50, Y 범위: ±15)
-      if (mouseX > buttonX - 10 && mouseX < buttonX + 10 && mouseY > buttonY - 15 && mouseY < buttonY + 15) {
+      // 클릭 감지 영역 (X 범위: ±20, Y 범위: ±20으로 확장)
+      if (mouseX > buttonX - 20 && mouseX < buttonX + 20 && mouseY > buttonY - 20 && mouseY < buttonY + 20) {
         selectedSubButtonIndices[group] = i; // 해당 그룹의 선택된 버튼 인덱스 업데이트
         println("Group " + group + " Button: " + subButtonTexts[group][i]); // 디버깅 메시지
       }
+
+      // 버튼 영역 시각화 (디버깅용)
+      fill(255, 0, 0, 100); // 반투명 빨간색
+      rect(buttonX - 20, buttonY - 20, 40, 40); // 버튼 클릭 영역 표시
     }
+  }
+
+  // 추가된 기능: 코스트 카드 아래 버튼 자리 클릭 이벤트 처리
+  float buttonAreaHeight = 20; // 버튼 영역 높이
+  float panelXOffset = 19; // 코스트 카드 시작 X 좌표
+  float sectionWidthCost = panelWidth / 4; // 각 버튼의 가로 길이 (4개로 분할)
+  float buttonY = monitoringAndCostYOffset + 100; // 버튼 영역의 Y 위치
+
+  for (int i = 0; i < 4; i++) {
+    float buttonX = panelXOffset + i * sectionWidthCost; // 각 버튼의 X 위치 계산
+
+    // 클릭 감지 (코스트 카드 아래 버튼 자리)
+    if (mouseX > buttonX && mouseX < buttonX + sectionWidthCost &&
+        mouseY > buttonY && mouseY < buttonY + buttonAreaHeight) {
+      currentCostImageIndex[currentShopIndex] = i; // Cost 이미지 전환
+      println("Shop: " + shops[currentShopIndex] + " - Switched to Cost" + (i + 1));
+    }
+
+    // 버튼 자리 영역 시각화 (디버깅용)
+    fill(0, 255, 0, 100); // 반투명 초록색
+    rect(buttonX, buttonY, sectionWidthCost, buttonAreaHeight); // 클릭 가능한 영역 표시
   }
 
   isLocked = true; // 스크롤 잠금 활성화
 }
-
-
 
 
 // 마우스 드래그 이벤트

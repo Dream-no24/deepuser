@@ -2,6 +2,10 @@
 PImage monitoringImg;
 PImage costImg;
 
+PImage[] costImages = new PImage[4]; // 코스트 이미지 배열
+int[] currentCostImageIndex = {0, 0, 0, 0}; // 각 점포의 현재 선택된 이미지 인덱스
+
+
 // 스와이프 관련 변수
 float swipeX = 0;  // 현재 스와이프 위치
 float targetSwipeX = 0;  // 목표 스와이프 위치
@@ -20,48 +24,71 @@ String[][] panelText = {
   {"55", "lx"}, 
   {"2.5", "h"}
 };
+void drawScaledImage(float x, float y, PImage img, float scale) {
+  if (img == null) return;
 
-// 이미지 로드 함수
+  // 원본 비율을 유지하면서 크기 조정
+  float panelWidth = img.width * scale;  // 폭을 scale로 조정
+  float panelHeight = img.height * scale; // 높이를 scale로 조정
+  image(img, x, y, panelWidth, panelHeight); // 이미지 출력
+}
+
 void loadMonitoringAndCostImages() {
   monitoringImg = loadImage("../data/monitoring.png");
-  costImg = loadImage("../data/TotalCostManager.png");
+  costImages[0] = loadImage("../data/Cost1.png");
+  costImages[1] = loadImage("../data/Cost2.png");
+  costImages[2] = loadImage("../data/Cost3.png");
+  costImages[3] = loadImage("../data/Cost4.png");
 }
+
 void drawMonitoringAndCostPanel(float baseYOffset) {
-  swipeX += (targetSwipeX - swipeX) * swipeSensitivity; // 부드러운 이동
+    swipeX += (targetSwipeX - swipeX) * swipeSensitivity;
 
-  float panelY = baseYOffset; // 패널의 Y 위치
-  pushMatrix();
-  translate(swipeX, 0); // 스와이프 이동 적용
+    float panelY = baseYOffset;
+    pushMatrix();
+    translate(swipeX, 0);
 
-  for (int i = 0; i < shops.length; i++) {
-    float x = i * width; // 각 점포의 X 위치
+    for (int i = 0; i < shops.length; i++) {
+        float x = i * width;
 
-    // 큰 박스 (반투명 배경)
-    fill(0, 0, 0, 60);
-    noStroke();
-    rect(19 + x, panelY, 324, 340, 20);
+        // 큰 박스 (반투명 배경)
+        fill(0, 0, 0, 60);
+        noStroke();
+        rect(19 + x, panelY, 324, 340, 20);
 
-    // 모니터링 패널 이미지
-    drawImagePanel(x + 19, panelY + 10, monitoringImg);
+        // 모니터링 패널 이미지
+        drawImagePanel(x + 23, panelY + 10, monitoringImg);
 
-    // 모니터링 텍스트
-    drawMonitoringText(x + 19, panelY + 10, 324, 340);
+        // 모니터링 텍스트
+        drawMonitoringText(x + 23, panelY + 10, 324, 340);
 
-    // 코스트 패널 이미지
-    drawImagePanel(x + 19, panelY + 110, costImg);
+        // Cost 패널 이미지 (위치 조정 포함)
+        if (currentCostImageIndex[i] == 0) {
+            // Cost1 위치
+            drawScaledImage(x + 30, panelY + 110, costImages[currentCostImageIndex[i]], 0.9);
+        } else if (currentCostImageIndex[i] == 1) {
+            // Cost2 위치
+            drawScaledImage(x + 30, panelY + 110, costImages[currentCostImageIndex[i]], 0.9);
+        } else if (currentCostImageIndex[i] == 2) {
+            // Cost3 위치
+            drawScaledImage(x + 30, panelY + 116, costImages[currentCostImageIndex[i]], 0.9);
+        } else if (currentCostImageIndex[i] == 3) {
+            // Cost4 위치 (특별한 조정)
+            drawScaledImage(x + 30, panelY + 130, costImages[currentCostImageIndex[i]], 0.9);
+        }
 
-    // 점포 이름 출력
-    fill(255); // 흰색 글씨
-    textSize(14);
-    textAlign(CENTER, CENTER);
-    text(shops[i], x + width / 2, panelY - 20); // 패널 위 중앙에 이름 표시
-  }
+        // 점포 이름 출력
+        fill(255);
+        textSize(14);
+        textAlign(CENTER, CENTER);
+        text(shops[i], x + width / 2, panelY - 20);
+    }
 
-  popMatrix();
-
-  // 꺾쇠 버튼 (스와이프 이동에 영향을 받지 않음)
-  drawSwipeButtons(baseYOffset + 170);
+    popMatrix();
+    drawSwipeButtons(baseYOffset + 170);
 }
+
+
 
 int[] selectedSubButtonIndices = {1, 1, 1, 1}; // 각 그룹의 선택된 버튼 인덱스 (디폴트: 표준)
 String[][] subButtonTexts = {
@@ -107,7 +134,7 @@ void drawSubButtons(float panelX, float panelY, float panelWidth, float panelHei
 
       // 버튼 색상 및 강조 처리
       textSize(selectedSubButtonIndices[group] == i ? 16 : 12); // 강조된 버튼 크기
-      fill(selectedSubButtonIndices[group] == i ? color(255, 255, 0) : 200); // 강조된 버튼은 노란색
+      fill(selectedSubButtonIndices[group] == i ? color(255) : 200); // 강조된 버튼은 노란색
       text(subButtonTexts[group][i], buttonX, buttonY);
     }
   }
