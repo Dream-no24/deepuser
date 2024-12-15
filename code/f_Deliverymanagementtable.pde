@@ -14,7 +14,7 @@ float headerHeight = 35; // 헤더 높이
 
 void drawTablePanel(float baseYOffset) {
   float startX = 22.5; // 테이블 시작 X 좌표
-  float tableWidth = width - 2 * startX; // 테이블 가로 길이
+  float tableWidth = 315; // 테이블 가로 길이
   float tableStartY = baseYOffset; // 테이블의 시작 Y 좌표
 
   // 비율에 따른 열 너비 계산
