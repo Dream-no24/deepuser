@@ -69,6 +69,8 @@ void mousePressed() {
     changePlacePressed(monitoringAndCostYOffset-35);
   }
   isLocked = true;
+  
+  infoPanelMousePressed();
 }
 
 // 마우스 드래그 이벤트
