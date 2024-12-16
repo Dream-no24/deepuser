@@ -38,8 +38,10 @@ void draw() {
   drawIssueAndSchedulePanels(issueAndScheduleYOffset);
   float monitoringAndCostYOffset = issueAndScheduleYOffset + 200; 
   drawMonitoringAndCostPanel(monitoringAndCostYOffset);
-  float calendarBaseYOffset = monitoringAndCostYOffset + 365;
-  drawCalendarPanel(calendarBaseYOffset);  
+  float calendarBaseYOffset = monitoringAndCostYOffset + 365;  
+  float calendarYOffset = monitoringAndCostYOffset + 365;
+  int[][] eventData = initializeEventMap();
+  drawCalendarPanel(calendarYOffset, eventData);
   float tablePanelYOffset = calendarBaseYOffset + 315;
   drawTablePanel(tablePanelYOffset);
 
