@@ -1,6 +1,6 @@
 // 현재 버튼 값과 클릭 감지 변수
 int dailyCigarettes = 0; // 버튼의 초기 숫자
-float buttonX = 85; // 버튼의 X 위치
+float buttonX = 86.3; // 버튼의 X 위치
 float buttonY; // 버튼의 Y 위치 (동적으로 계산)
 float buttonSize = 60; // 버튼 크기
 

@@ -16,7 +16,8 @@ void setup() {
   bezel = loadImage("../data/iPhone.png"); // 배젤 이미지 로드
   font = createFont("../data/NanumGothicCoding.ttf", 48, true);
   textFont(font);
-
+  scheduleData = initializeScheduleData();
+  filterDataWithinOneMonth();
   loadMonitoringAndCostImages(); // 이미지 로드
 }
 
@@ -40,9 +41,13 @@ void draw() {
   drawMonitoringAndCostPanel(monitoringAndCostYOffset);
   float calendarBaseYOffset = monitoringAndCostYOffset + 365;  
   float calendarYOffset = monitoringAndCostYOffset + 365;
-  int[][] eventData = initializeEventMap();
-  drawCalendarPanel(calendarYOffset, eventData);
-  float tablePanelYOffset = calendarBaseYOffset + 315;
+  drawCalendarPanel(calendarYOffset,false);
+  // 캘린더 패널의 현재 높이를 반영
+  float scaleFactor = isCalendarMinimized ? minimizedWidth / originalWidth : 1.0;
+  float calendarPanelHeight = isCalendarMinimized ? originalHeight * scaleFactor + 22 : originalHeight;
+  
+  // 테이블 패널의 Y 위치를 캘린더 아래로 조정
+  float tablePanelYOffset = calendarYOffset + calendarPanelHeight + 20 * scaleFactor;
   drawTablePanel(tablePanelYOffset);
 
   maxScrollY = tablePanelYOffset + 230 + 50 - height;
@@ -73,6 +78,10 @@ void mousePressed() {
   isLocked = true;
   
   infoPanelMousePressed();
+  // 캘린더 클릭 감지
+  float calendarYOffset = 60 + 220 + 200 + 365; // 캘린더 Y 위치 계산
+  calendarMousePressed(calendarYOffset);
+
 }
 
 // 마우스 드래그 이벤트
