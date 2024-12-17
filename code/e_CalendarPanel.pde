@@ -33,6 +33,7 @@ void drawCalendarPanel(float baseYOffset, boolean isReduced) {
   rect(22.5, panelY, originalWidth, currentHeight, 20);
 
   // 달 이름 출력 (비율에 맞게 조정)
+  textFont(boldFont);
   fill(255);
   textSize(18); // 텍스트 크기 축소
   textAlign(LEFT, CENTER);
@@ -44,8 +45,9 @@ void drawCalendarPanel(float baseYOffset, boolean isReduced) {
     // 일반 상태일 때는 달 이름만 출력
     text(month, monthX - 35, panelY + 30);
   }
-
-  // 요일 및 날짜 출력
+  
+  // 요일 및 날짜 출력  
+  textFont(regularFont);
   drawDaysOfWeek(panelY + 60 * scaleFactor, scaleFactor);
   drawCalendarDates(panelY, scheduleData, scaleFactor);
   

@@ -39,6 +39,7 @@ void drawTablePanel(float baseYOffset) {
   };
 
   // 테이블 헤더 그리기
+  textFont(boldFont);
   fill(0, 0, 0, 190);
   rect(startX, tableStartY, tableWidth, tableHeight, 20, 20, 0, 0);
   fill(255);
@@ -51,6 +52,7 @@ void drawTablePanel(float baseYOffset) {
   }
 
   // 데이터 출력
+  textFont(regularFont);
   for (int i = 0; i < filteredData.length; i++) {
     float y = tableStartY + headerHeight + i * rowHeight;
 
