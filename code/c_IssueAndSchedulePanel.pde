@@ -33,7 +33,9 @@ void drawIssueAndSchedulePanels(float baseYOffset) {
   fill(255); // 텍스트 색상
   textSize(12);
   textAlign(LEFT, CENTER);
-  text("10   17", 223, panelY + 20); // 날짜 텍스트
+  text("10", 223, panelY + 20); // 날짜 월 텍스트
+  text("17", 249, panelY + 20); // 날짜 일 텍스트
+
 
   // 일정 항목
   String[][] schedules = {
@@ -44,13 +46,15 @@ void drawIssueAndSchedulePanels(float baseYOffset) {
 
   float scheduleStartY = panelY + 45; // 일정 시작 Y 위치
   for (int i = 0; i < schedules.length; i++) {
-    // 시간 출력 (13pt)
+    // 종류 출력 (13pt)
+    textFont(boldFont);
     textSize(13);
-    text(schedules[i][0], 210, scheduleStartY + i * 30); // 시간 출력
+    text(schedules[i][0], 210, scheduleStartY + i * 30); // 종류  출력
 
-    // 종류 출력 (10pt, 같은 줄)
+    // 시간 출력 (10pt, 같은 줄)
+    textFont(regularFont);
     textSize(10);
-    text(schedules[i][1], 235, scheduleStartY + i * 30); // "미팅", "점검", "납품" 출력
+    text(schedules[i][1], 235, scheduleStartY + i * 30); // 시간 출력
 
     // 세부 내용 출력 (10pt, 아래 줄)
     textSize(9);

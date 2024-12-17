@@ -1,4 +1,4 @@
-PFont font;
+PFont regularFont, boldFont, blackFont;
 PImage img;
 PImage statusbar;
 PImage punchhole;
@@ -14,14 +14,16 @@ void setup() {
   statusbar = loadImage("../data/Statusbar.png");
   punchhole = loadImage("../data/punchhole.png");
   bezel = loadImage("../data/iPhone.png"); // 배젤 이미지 로드
-  font = createFont("../data/NanumGothicCoding.ttf", 48, true);
-  textFont(font);
+  regularFont = createFont("../data/NotoSansKR-Regular.ttf", 48);
+  boldFont = createFont("../data/NotoSansKR-Bold.ttf", 48);
+  blackFont = createFont("../data/NotoSansKR-Black.ttf", 48);
   scheduleData = initializeScheduleData();
   filterDataWithinOneMonth();
   loadMonitoringAndCostImages(); // 이미지 로드
 }
 
 void draw() {
+  textFont(regularFont);
   background(50, 50, 50);
   image(img, 5, 5, 360, 800); // 위치 조정
 

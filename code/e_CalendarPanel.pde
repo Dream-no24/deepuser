@@ -174,7 +174,7 @@ String[][] initializeScheduleData() {
 void drawSelectedDaySchedule(float baseYOffset) {
   if (selectedDay == -1 || !isCalendarMinimized) return; // 선택된 날짜가 없거나 축소 상태가 아니면 종료
 
-  float startX = 200; // 일정 표시 시작 X 좌표 (오른쪽 여백 조정)
+  float startX = 210; // 일정 표시 시작 X 좌표 (오른쪽 여백 조정)
   float startY = baseYOffset + 50; // Y 좌표 시작 위치
 
   fill(255); // 텍스트 색상
@@ -183,19 +183,41 @@ void drawSelectedDaySchedule(float baseYOffset) {
 
   // 선택된 날짜의 일정 표시
   String[] events = scheduleData[selectedDay - 1]; // 선택된 날짜의 일정
-  if (events.length == 0) {
-    text("일정 없음", startX, startY); // 일정이 없을 경우
-  } else {
-    for (int i = 0; i < events.length; i++) {
-      String[] eventParts = events[i].split(" ", 3); // 시간과 내용 분리 (공백 기준)
-      String time = eventParts[0]; // 시간
-      String category = eventParts[1]; // 카테고리
-      String content = eventParts[2]; // 내용
-
-      // 시간과 내용을 함께 출력
-      text(time + " - " + category + " " + content, startX, startY + i * 15); // 각 일정 표시 (줄바꿈)
+if (events.length == 0) {
+  text("일정 없음", startX, startY); // 일정이 없을 경우
+} else {
+  for (int i = 0; i < events.length; i++) {
+    String[] eventParts = events[i].split(" ", 3); // 시간과 내용 분리 (공백 기준)
+    String time = eventParts[0]; // 시간
+    String category = eventParts[1]; // 카테고리
+    String content = eventParts[2]; // 내용
+    // 특정 카테고리별 점 색상 설정
+    if (category.equals("납품")) {
+      fill(201, 104, 104); // 빨간색
+      ellipse(startX - 10, startY + i * 35 - 6, 6, 6); // 점 찍기
+    } else if (category.equals("미팅")) {
+      fill(255, 255, 255); // 파란색
+      ellipse(startX - 10, startY + i * 35 - 6, 6, 6);
+    } else if (category.equals("점검")) {
+      fill(65, 242, 255); // 초록색
+      ellipse(startX - 10, startY + i * 35 - 6, 6, 6);
+    } else {
+      fill(250, 223, 161); // 회색 (기타)
+      ellipse(startX - 10, startY + i * 35 - 6, 6, 6);
     }
+
+    // 시간과 내용을 함께 출력
+    textSize(9);
+    fill(255); // 글자 색은 검정
+    text(time + content, startX, startY + i * 35); // 시간 + 내용 출력
+
+    // 종류 출력 (13pt, 같은 줄)
+    textSize(13);
+    fill(255);
+    text(category, startX - 3, startY + i * 35 - 14); // "납품", "미팅", "점검", "일상" 출력
   }
+}
+
 }
 
 

@@ -47,16 +47,18 @@ void drawMonitoringAndCostPanel(float baseYOffset) {
     // 현재 인덱스인 패널 → 흰색 / 양옆에 이전·다음 이름은 회색
     if (i == currentShopIndex) {
       // 현재 점포(흰색)
-      textSize(14);
+      textFont(boldFont);
+      textSize(16);
       fill(255);
       text(shops[i], x + width/2, panelY - 20);
+      textFont(regularFont);
 
       // 이전 점포(회색) - 있으면 표시
       if (i > 0) {
         textSize(12);
         fill(150);
         // 원하는 위치만큼 좌우 간격을 조절한다. 여기서는 -120 정도로 가정
-        text(shops[i - 1], x + width/2 - 120, panelY - 20);
+        text(shops[i - 1], x + width/2 - 100, panelY - 20);
       }
 
       // 다음 점포(회색) - 있으면 표시
@@ -64,7 +66,7 @@ void drawMonitoringAndCostPanel(float baseYOffset) {
         textSize(12);
         fill(150);
         // 여기서는 +120 정도로 가정
-        text(shops[i + 1], x + width/2 + 120, panelY - 20);
+        text(shops[i + 1], x + width/2 + 100, panelY - 20);
       }
     } 
     else {
