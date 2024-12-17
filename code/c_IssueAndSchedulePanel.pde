@@ -72,7 +72,7 @@ void drawIssueAndSchedulePanels(float baseYOffset) {
     else fill(200); // 기타
     
     
-    ellipse(203.5, scheduleStartY - 4.5 + i * 30, 6, 6); // 원 그리기
+    ellipse(206, scheduleStartY - 5 + i * 30, 6, 6); // 원 그리기
     
     fill(255); // 세부 일정 색상: 검정
     textFont(boldFont);
