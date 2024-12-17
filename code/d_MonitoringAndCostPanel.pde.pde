@@ -103,7 +103,18 @@ void drawProgressBar(float x, float y, float width, int dataLength) {
     fill(255); // 흰색
     rect(x, y, progressWidth, 5); // 동적으로 계산된 길이
 }
+void drawNewProgressBar(float x, float y, float width, int progressValue) {
+    float maxLength = 30.0; // 최대 값
+    float progressWidth = map(progressValue, 0, maxLength, 0, width); // 값에 따른 길이 비례 계산
 
+    // 프로그레스 바 스타일
+    noStroke();
+    fill(100); // 배경 바 색상
+    rect(x, y, width, 8); // 전체 배경 바 출력
+
+    fill(255); // 프로그레스 바 색상 (흰색)
+    rect(x, y, progressWidth, 8); // 동적으로 계산된 길이로 바 출력
+}
 int dataLengthForProgress(int costIndex) {
     if (costIndex == 0) return graphData1.length;
     if (costIndex == 1) return graphData2.length;
@@ -111,65 +122,86 @@ int dataLengthForProgress(int costIndex) {
     return 0; // Cost4의 경우 데이터 없음
 }
 
+// 전역 변수로 선언
+int graphLength;
+
 void drawCostImageWithGraph(float x, float panelY, int costIndex) {
-    // Cost 이미지 출력
     float costX = x + 30;
     float costY = panelY + 110;
 
     // Cost4만 위치를 조정
     if (costIndex == 3) {
-        costY += 20;
-    } else if (costIndex == 2) {
-        costY += 6;
-    }
-
-    drawScaledImage(costX, costY, costImages[costIndex], 0.9);
-
-    // Cost4는 그래프 및 텍스트 미출력
-    if (costIndex == 3) {
-        return; // Cost4에서는 아래 코드 실행 안함
-    }
-
-    // 숫자 및 단위 텍스트
-    float textX = x + 20;
-    float textY = panelY + 15;
-    drawMonitoringText(textX, textY, 324, 50);
-
-    // 그래프 데이터 및 위치 설정
-    float graphX = costX + 40;
-    float graphY = costY + 80;
-    float graphWidth = 200;
-    float graphHeight = 30;
-
-    float monthCost;
-    int graphLength; // 그래프 길이 변수 선언
-
-    // 그래프 그리기 및 데이터 합계
-    if (costIndex == 0) {
-        graphLength = 16; // 날짜 값 설정 (16일치 그래프 출력)
-        drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData1, graphLength);
-        monthCost = calculateGraphSum(graphData1, graphLength);
-    } else if (costIndex == 1) {
-        graphLength = 10; // 날짜 값 설정 (10일치 그래프 출력)
-        drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData2, graphLength);
-        monthCost = calculateGraphSum(graphData2, graphLength);
+        costY += 20; // Cost4 위치 조정
+        drawScaledImage(costX, costY, costImages[costIndex], 0.9);
+        
+        // Cost4 프로그레스 바 위치 오프셋
+        float progressBarX = costX + 40; // X 위치 조정
+        float progressBarY = costY + 150; // Y 위치 조정
+        drawProgressBar(progressBarX, progressBarY, 200, 20);
     } else {
-        graphLength = 30; // 전체 그래프 출력
-        drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData3, graphLength);
-        monthCost = calculateGraphSum(graphData3, graphLength);
+        if (costIndex == 2) {
+            costY += 6; // Cost3 위치 조정
+        }
+
+        drawScaledImage(costX, costY, costImages[costIndex], 0.9);
+
+        // 숫자 및 단위 텍스트
+        float textX = x + 20;
+        float textY = panelY + 15;
+        drawMonitoringText(textX, textY, 324, 50);
+
+        // 그래프 데이터 및 위치 설정
+        float graphX = costX + 40;
+        float graphY = costY + 80;
+        float graphWidth = 200;
+        float graphHeight = 30;
+
+        float monthCost;
+
+        // 그래프 그리기 및 데이터 합계
+        if (costIndex == 0) {
+            graphLength = 30; 
+            drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData1, graphLength);
+            monthCost = calculateGraphSum(graphData1, graphLength);
+        } else if (costIndex == 1) {
+            graphLength = 30; 
+            drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData2, graphLength);
+            monthCost = calculateGraphSum(graphData2, graphLength);
+        } else {
+            graphLength = 30; 
+            drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData3, graphLength);
+            monthCost = calculateGraphSum(graphData3, graphLength);
+        }
+         // costMonth 원 위치 오프셋 조정
+    float costMonthX = graphX + graphWidth - 9; // 기본 X 위치
+    float costMonthY = graphY - 32; // 기본 Y 위치
+
+    if (costIndex == 1) costMonthY += 0; // Cost2 원 위치 미세 조정
+    if (costIndex == 2) {
+        costMonthX += 10; // Cost3 X 위치 왼쪽으로 이동
+        costMonthY += -7; // Cost3 Y 위치 위로 이동
     }
 
-    // costMonth 값 출력 (오른쪽 상단에 원으로 출력)
-    drawCostMonthText(graphX + graphWidth - 9, graphY - 32, monthCost);
+    drawCostMonthText(costMonthX, costMonthY, monthCost);
 
-    // 프로그레스 바 출력 (그래프 길이에 따라 길이 설정)
-    drawProgressBar(graphX - 3, graphY + graphHeight + 61, graphWidth, graphLength);
+        
 
-    // 텍스트 버튼 출력
+        // Cost별 프로그레스 바 위치 오프셋
+        float progressBarX = costX + 37; // X 위치 조정
+        float progressBarY = costY + graphHeight + 10; // 기본 Y 위치
+        if (costIndex == 0) progressBarY += 130; // Cost2 위치 미세 조정
+        if (costIndex == 1) progressBarY += 130; // Cost2 위치 미세 조정
+        if (costIndex == 2) progressBarY += 125; // Cost3 위치 미세 조정
+
+        drawProgressBar(progressBarX, progressBarY, graphWidth, graphLength);
+    }
+
+    // 텍스트 버튼 출력 (Cost4 포함)
     float panelWidth = 324;
     float buttonBaseY = panelY + 160;
     drawSubButtons(x + 23, buttonBaseY, panelWidth, 50);
 }
+
 
 
 
@@ -200,10 +232,10 @@ void drawScaledImage(float x, float y, PImage img, float scale) {
 
 void loadMonitoringAndCostImages() {
   monitoringImg = loadImage("../data/monitoring.png");
-  costImages[0] = loadImage("../data/Cost1.png");
-  costImages[1] = loadImage("../data/Cost2.png");
-  costImages[2] = loadImage("../data/Cost3.png");
-  costImages[3] = loadImage("../data/Cost4.png");
+  costImages[0] = loadImage("../data/Cost21.png");
+  costImages[1] = loadImage("../data/Cost22.png");
+  costImages[2] = loadImage("../data/Cost23.png");
+  costImages[3] = loadImage("../data/Cost24.png");
 }
 
 void drawMonitoringAndCostPanel(float baseYOffset) {
