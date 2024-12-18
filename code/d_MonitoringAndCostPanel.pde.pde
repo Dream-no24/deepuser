@@ -246,7 +246,7 @@ void initializeGraphData1() {
 
 float getCost4LineLength() {
     int day = getCurrentDateInfo()[2]; // 현재 날짜의 '일' 가져오기
-    return map(day, 1, 30, 0, 200); // 최소 10, 최대 200으로 매핑
+    return map(day, 1, 30, 0, 240); // 최소 10, 최대 200으로 매핑
 }
 
 void drawCostImageWithGraph(float x, float panelY, int costIndex) {
