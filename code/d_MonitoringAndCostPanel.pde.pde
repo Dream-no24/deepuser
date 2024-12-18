@@ -493,7 +493,7 @@ void drawSubButtons(float panelX, float panelY, float panelWidth, float panelHei
   for (int group = 0; group < 4; group++) { // 4개의 그룹 반복
     float groupX = panelX + (group * sectionWidth); // 그룹 시작 X 좌표
     float groupY = panelY; // 그룹 Y 위치
-    float buttonSpacing = sectionWidth / 3+1; // 버튼 간 가로 간격
+    float buttonSpacing = sectionWidth / 3; // 버튼 간 간격
 
     for (int i = 0; i < 3; i++) { // 각 그룹당 3개의 버튼
       float buttonX = groupX + (i * buttonSpacing) + buttonSpacing / 2;
@@ -502,10 +502,73 @@ void drawSubButtons(float panelX, float panelY, float panelWidth, float panelHei
       // 선택된 버튼 강조 처리
       textSize(selectedSubButtonIndices[shopIndex][group][i] == 1 ? 14 : 10);
       fill(selectedSubButtonIndices[shopIndex][group][i] == 1 ? color(255) : color(200));
-      text(subButtonTexts[group][i], buttonX, buttonY);
+      text(shopSubButtonTexts[shopIndex][group][i], buttonX, buttonY);
     }
   }
 }
+
+// 점포별로 그룹당 3개의 버튼 텍스트 저장
+String[][][] shopSubButtonTexts = new String[4][4][3]; 
+void initializeShopButtonTexts() {
+  String[] defaultTexts = {"절약", "표준", "최적"};
+
+  for (int shop = 0; shop < 4; shop++) { // 총 4개의 점포
+    for (int group = 0; group < 4; group++) { // 각 점포당 4개의 그룹
+      for (int i = 0; i < 3; i++) { // 각 그룹당 3개의 버튼
+        shopSubButtonTexts[shop][group][i] = defaultTexts[i];
+      }
+    }
+  }
+}
+
+
+// 전역 변수: 점포별 텍스트 상태를 저장하는 배열
+String[][] shopTexts = new String[4][3]; // 점포 4개, 각 점포당 3개의 텍스트
+
+int[] selectedTextIndex = {0, 0, 0, 0}; // 점포별 선택된 텍스트 인덱스 (0 ~ 2)
+
+// 초기화 함수: 텍스트 초기화
+void initializeShopTexts() {
+  String[] initialTexts = {"절약", "표준", "최적"};
+  for (int shop = 0; shop < shopTexts.length; shop++) {
+    for (int i = 0; i < initialTexts.length; i++) {
+      shopTexts[shop][i] = initialTexts[i];
+    }
+  }
+}
+void rotateTextGroup(int shopIndex, int group) {
+  // 현재 점포의 그룹 상태 가져오기
+  String[] texts = shopSubButtonTexts[shopIndex][group];
+  String firstText = texts[0]; // 첫 번째 텍스트 저장
+
+  // 텍스트를 왼쪽으로 회전
+  for (int i = 0; i < texts.length - 1; i++) {
+    texts[i] = texts[i + 1];
+  }
+  texts[texts.length - 1] = firstText; // 첫 번째 텍스트를 마지막으로 이동
+
+  // 선택된 상태 강조: 중앙 텍스트 강조
+  for (int i = 0; i < 3; i++) {
+    selectedSubButtonIndices[shopIndex][group][i] = (i == 1) ? 1 : 0; // 중앙 텍스트 강조
+  }
+}
+
+
+void rotateTexts(int group) {
+  int[] buttonStates = selectedSubButtonIndices[currentShopIndex][group]; // 현재 점포의 그룹 상태 가져오기
+
+  // 버튼 상태 회전 (예: 절약 -> 표준 -> 최적)
+  int[] newStates = new int[3];
+  for (int i = 0; i < 3; i++) {
+    newStates[(i + 1) % 3] = buttonStates[i]; // 오른쪽으로 회전
+  }
+
+  // 회전된 상태를 현재 점포의 해당 그룹에 다시 할당
+  for (int i = 0; i < 3; i++) {
+    selectedSubButtonIndices[currentShopIndex][group][i] = newStates[i];
+  }
+}
+
 
 
 //이미지 출력띠

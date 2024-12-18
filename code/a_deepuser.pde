@@ -10,6 +10,8 @@ float smoothness = 0.3;    // 부드러움 정도 (0.1 ~ 0.5 추천)
 
 void setup() {
   size(370, 810); // 화면 크기 변경
+  initializeShopButtonTexts(); // 텍스트 초기화 필수
+  initializeButtonStates();   // 선택 상태 초기화
   img = loadImage("../data/deepuser.png");
   statusbar = loadImage("../data/Statusbar.png");
   punchhole = loadImage("../data/punchhole.png");
@@ -85,37 +87,34 @@ void drawBezel() {
 }
 void mousePressed() {
   // 기존 기능: 모니터링 및 코스트 패널 클릭
-  float monitoringAndCostYOffset = 60 + 220 + 400 + pos;
-  if (mouseX > 5 && mouseX < 365 && mouseY > monitoringAndCostYOffset - 50 && mouseY < monitoringAndCostYOffset + 50) {
-    changePlacePressed(monitoringAndCostYOffset - 35);
+  float monitoringAndCostYOffset = 60 + 220 + 400 + pos; // 스크롤 오프셋 포함
+  if (mouseX > 5 && mouseX < 365 && 
+      mouseY > monitoringAndCostYOffset - 50 && mouseY < monitoringAndCostYOffset + 50) {
+    changePlacePressed(monitoringAndCostYOffset - 35); // 스크롤 오프셋을 고려한 클릭 처리
   }
 
   float panelWidth = 324;
-  float sectionWidth = panelWidth / 4; // 각 그룹의 폭
-  float buttonSpacing = sectionWidth / 3;
-  float buttonBaseY = 60 + 220 + 400 - 95 + pos; // 버튼 Y 위치
+float sectionWidth = panelWidth / 4; // 각 그룹의 폭
+float buttonBaseY = 60 + 220 + 400 - 95 + pos; // 버튼 Y 위치
 
-  for (int group = 0; group < 4; group++) { // 각 그룹 반복
-    float groupX = 21 + (group * sectionWidth); // 그룹 시작 X 위치
+for (int group = 0; group < 4; group++) { // 각 그룹 반복
+  float groupX = 21 + (group * sectionWidth) + 45; // 그룹 시작 X 위치
 
-    for (int i = 0; i < 3; i++) { // 각 그룹당 3개의 버튼
-      float buttonX = groupX + (i * buttonSpacing) + buttonSpacing / 2; // 버튼 X 위치
-      float buttonY = buttonBaseY;
+  // 버튼 영역 표시 (시각화)
+  fill(255, 0, 0, 100); // 반투명 빨간색으로 영역 표시
+  noStroke();
+  rect(groupX - sectionWidth / 2, buttonBaseY - 20, sectionWidth, 40);
 
-      if (mouseX > buttonX - 20 && mouseX < buttonX + 20 &&
-          mouseY > buttonY - 20 && mouseY < buttonY + 20) {
-        // 현재 점포의 해당 그룹 상태 초기화
-        for (int j = 0; j < 3; j++) {
-          selectedSubButtonIndices[currentShopIndex][group][j] = 0;
-        }
-        // 클릭된 버튼만 선택
-        selectedSubButtonIndices[currentShopIndex][group][i] = 1;
-        println("Shop " + currentShopIndex + ", Group " + group + ", Button: " + subButtonTexts[group][i]);
-      }
-    }
+  // 클릭 감지
+  if (mouseX > groupX - sectionWidth / 2 && mouseX < groupX + sectionWidth / 2 &&
+      mouseY > buttonBaseY - 20 && mouseY < buttonBaseY + 20) {
+    // 클릭된 그룹의 텍스트 순환 (현재 점포 기준)
+    rotateTextGroup(currentShopIndex, group); 
+    println("Shop " + currentShopIndex + ", Group " + group + " text rotated!");
   }
+}
 
-  // 추가된 기능: 코스트 카드 아래 버튼 자리 클릭 이벤트 처리
+  // 추가된 기능: 코스트 카드 아래 버튼 클릭 처리
   float buttonAreaHeight = 20; // 버튼 영역 높이
   float panelXOffset = 19; // 코스트 카드 시작 X 좌표
   float sectionWidthCost = panelWidth / 4; // 각 버튼의 가로 길이 (4개로 분할)
@@ -127,19 +126,24 @@ void mousePressed() {
     // 클릭 감지 (코스트 카드 아래 버튼 자리)
     if (mouseX > buttonX && mouseX < buttonX + sectionWidthCost &&
         mouseY > buttonY && mouseY < buttonY + buttonAreaHeight) {
-      currentCostImageIndex[currentShopIndex] = i; // Cost 이미지 전환
-      println("Shop: " + shops[currentShopIndex] + " - Switched to Cost" + (i + 1));
+      if (i < currentCostImageIndex.length) {
+        currentCostImageIndex[currentShopIndex] = i; // Cost 이미지 전환
+        println("Shop: " + shops[currentShopIndex] + " - Switched to Cost" + (i + 1));
+      }
     }
   }
 
-  isLocked = true; // 스크롤 잠금 활성화
-  
+  // 스크롤 잠금 활성화
+  isLocked = true;
+
+  // 추가된 패널 클릭 처리
   infoPanelMousePressed();
+
   // 캘린더 클릭 감지
   float calendarYOffset = 60 + 220 + 200 + 365; // 캘린더 Y 위치 계산
   calendarMousePressed(calendarYOffset);
-
 }
+
 
 
 // 마우스 드래그 이벤트
