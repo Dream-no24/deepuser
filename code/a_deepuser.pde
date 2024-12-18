@@ -18,6 +18,7 @@ void setup() {
   textFont(regularFont);
   initializeGraphData(); // 그래프 데이터 초기화
   updateGraphDataForShop(); // 초기 그래프 데이터 설정
+  initializeButtonStates(); // 버튼 상태 초기화
 
   regularFont = createFont("../data/NotoSansKR-Regular.ttf", 48);
   boldFont = createFont("../data/NotoSansKR-Bold.ttf", 48);
@@ -29,44 +30,49 @@ void setup() {
 }
 
 void draw() {
+  // 배경과 상태 바 먼저 그리기
   textFont(regularFont);
   background(50, 50, 50);
-  image(img, 5, 5, 360, 800); // 위치 조정
+  image(img, 5, 5, 360, 800);
 
   // 세로 스크롤 위치 보정
-  npos = constrain(npos, -maxScrollY, 0); 
-  pos += (npos - pos) * smoothness; // pos가 npos에 서서히 따라감
+  npos = constrain(npos, -maxScrollY, 0);
+  pos += (npos - pos) * smoothness;
 
-  pushMatrix();
-  translate(5, pos + 5); // 배젤 삽입으로 인한 전체 위치 조정
+  pushMatrix(); // 스크롤 변환 시작
+  translate(5, pos + 5); // 세로 스크롤 적용
 
   // 패널들 그리기
   float infoPanelYOffset = 60;
   drawInfoPanel(infoPanelYOffset);
+
   float issueAndScheduleYOffset = infoPanelYOffset + 220; 
   drawIssueAndSchedulePanels(issueAndScheduleYOffset);
-  float monitoringAndCostYOffset = issueAndScheduleYOffset + 200; 
+
+  float monitoringAndCostYOffset = issueAndScheduleYOffset + 200;
   drawMonitoringAndCostPanel(monitoringAndCostYOffset);
-  float calendarBaseYOffset = monitoringAndCostYOffset + 365;  
+
   float calendarYOffset = monitoringAndCostYOffset + 365;
-  drawCalendarPanel(calendarYOffset,false);
-  // 캘린더 패널의 현재 높이를 계산
+  drawCalendarPanel(calendarYOffset, false);
+
   float calendarPanelHeight = getCalendarPanelHeight();
-
-  // 테이블 패널의 Y 위치를 캘린더 아래로 조정
-  float scaleFactor = isCalendarMinimized ? minimizedWidth / originalWidth : 1.0;
   float tablePanelYOffset = calendarYOffset + calendarPanelHeight + 25;
-
   drawTablePanel(tablePanelYOffset);
 
   maxScrollY = tablePanelYOffset + 230 + 50 - height;
 
-  popMatrix();
-  drawStatusBar();
+  // **점포 버튼을 스크롤 위치에 맞게 그리기**
+  float panelX = 21;
+  float panelY = monitoringAndCostYOffset + 160; // 버튼 Y 위치
+  
 
-  // 배젤 이미지 추가 (가장 위)
+  popMatrix(); // 스크롤 변환 끝
+
+  // 상태 바 및 배젤 그리기
+  drawStatusBar();
   drawBezel();
 }
+
 
 void drawStatusBar() {
   tint(255, 245);
@@ -84,23 +90,27 @@ void mousePressed() {
     changePlacePressed(monitoringAndCostYOffset - 35);
   }
 
-  // 기존 기능: 가로 정렬된 버튼 클릭 이벤트 처리
-  float panelWidth = 324; // 전체 패널의 너비
-  float sectionWidth = panelWidth / 4; // 각 그룹의 폭 (4개 그룹 기준)
-  float groupY = monitoringAndCostYOffset - 95; // 버튼 그룹의 Y 위치
+  float panelWidth = 324;
+  float sectionWidth = panelWidth / 4; // 각 그룹의 폭
+  float buttonSpacing = sectionWidth / 3;
+  float buttonBaseY = 60 + 220 + 400 - 95 + pos; // 버튼 Y 위치
 
-  for (int group = 0; group < subButtonTexts.length; group++) { 
-    float groupX = 21 + (group * sectionWidth); // 각 그룹 시작 X 좌표
-    float buttonSpacing = sectionWidth / 3; // 각 버튼 간격 (가로)
+  for (int group = 0; group < 4; group++) { // 각 그룹 반복
+    float groupX = 21 + (group * sectionWidth); // 그룹 시작 X 위치
 
-    for (int i = 0; i < subButtonTexts[group].length; i++) {
-      float buttonX = groupX + (i * buttonSpacing) + buttonSpacing / 2; // 각 버튼의 X 좌표
-      float buttonY = groupY; // 버튼의 Y 좌표 (고정)
+    for (int i = 0; i < 3; i++) { // 각 그룹당 3개의 버튼
+      float buttonX = groupX + (i * buttonSpacing) + buttonSpacing / 2; // 버튼 X 위치
+      float buttonY = buttonBaseY;
 
-      // 클릭 감지 영역 (X 범위: ±20, Y 범위: ±20으로 확장)
-      if (mouseX > buttonX - 20 && mouseX < buttonX + 20 && mouseY > buttonY - 20 && mouseY < buttonY + 20) {
-        selectedSubButtonIndices[group] = i; // 해당 그룹의 선택된 버튼 인덱스 업데이트
-        println("Group " + group + " Button: " + subButtonTexts[group][i]); // 디버깅 메시지
+      if (mouseX > buttonX - 20 && mouseX < buttonX + 20 &&
+          mouseY > buttonY - 20 && mouseY < buttonY + 20) {
+        // 현재 점포의 해당 그룹 상태 초기화
+        for (int j = 0; j < 3; j++) {
+          selectedSubButtonIndices[currentShopIndex][group][j] = 0;
+        }
+        // 클릭된 버튼만 선택
+        selectedSubButtonIndices[currentShopIndex][group][i] = 1;
+        println("Shop " + currentShopIndex + ", Group " + group + ", Button: " + subButtonTexts[group][i]);
       }
     }
   }

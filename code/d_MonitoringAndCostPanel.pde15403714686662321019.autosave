@@ -24,6 +24,16 @@ String[][] panelText = {
   {"55", "lx"}, 
   {"2.5", "h"}
 };
+// 점포별 고유 버튼 상태 (각 점포마다 하나의 선택된 버튼 인덱스)
+// 점포별 고유 버튼 상태 (4개의 점포, 각 점포에 3개의 버튼 상태)
+int[] selectedSubButtonIndices = {0, 0, 0, 0}; // 각 점포의 현재 선택된 버튼 인덱스
+
+String[][] subButtonTexts = {
+  {"절약", "표준", "최적"},
+  {"절약", "표준", "최적"},
+  {"절약", "표준", "최적"},
+  {"절약", "표준", "최적"}
+};
 float[][] shopGraphData1 = new float[4][30]; // 그래프 데이터 1
 float[][] shopGraphData2 = new float[4][30]; // 그래프 데이터 2
 float[][] shopGraphData3 = new float[4][30]; // 그래프 데이터 3
@@ -34,13 +44,13 @@ void generateRandomGraphData(float[] data, int minVal, int maxVal) {
   }
 }
 
-/* void initializeGraphData() {
+void initializeGraphData() {
   for (int i = 0; i < 4; i++) { // 점포 4개
     generateRandomGraphData(shopGraphData1[i], 20, 80); // 그래프 1 범위: 20 ~ 80
     generateRandomGraphData(shopGraphData2[i], 10, 60); // 그래프 2 범위: 10 ~ 60
     generateRandomGraphData(shopGraphData3[i], 0, 50);  // 그래프 3 범위: 0 ~ 50
   }
-} */
+}
 void updateGraphDataForShop() {
   if (currentShopIndex >= 0 && currentShopIndex < shopGraphData1.length) {
     int minLength = min(shopGraphData1[currentShopIndex].length, graphData1.length);
@@ -81,7 +91,7 @@ void drawDynamicProgressBar(float x, float y, float width, float height, float[]
         sum += data[i];
     }
 
-    float maxSum = 2100; // 기준값 (70 * 30)
+    float maxSum = 1200; // 기준값 (40 * 30)
     float progressWidth = map(sum, 0, maxSum, 0, width); // 기본 프로그레스 바 길이 계산
 
     // 배경 바 그리기
@@ -201,43 +211,6 @@ int dataLengthForProgress(int costIndex) {
 // 전역 변수로 선언
 int graphLength;
 
-int[] getCurrentDateInfo() {
-    java.util.Calendar calendar = java.util.Calendar.getInstance();
-    
-    
-    int dayOffset = 0; // 날짜를 올리는 오프셋 값
-    // 현재 날짜에 오프셋 추가
-    calendar.add(java.util.Calendar.DAY_OF_MONTH, dayOffset);
-    
-    int year = calendar.get(java.util.Calendar.YEAR); // 연도
-    int month = calendar.get(java.util.Calendar.MONTH) + 1; // 월 (0부터 시작하므로 +1)
-    int day = calendar.get(java.util.Calendar.DAY_OF_MONTH); // 일
-    return new int[]{year, month, day};
-}
-
-int getGraphLengthBasedOnDate() {
-    int day = getCurrentDateInfo()[2]; // 현재 날짜의 '일' 가져오기
-    return constrain(day, 1, 30); // 그래프 길이를 1 ~ 30으로 제한
-}
-
-// 데이터 생성 범위를 날짜에 따라 조정
-void generateRandomGraphDataBasedOnDate(float[] data) {
-    int[] dateInfo = getCurrentDateInfo();
-    int day = dateInfo[2];
-    int minVal = day * 2; // 최소값: 날짜에 따라 동적으로 변경
-    int maxVal = minVal + 50; // 최대값: 최소값 + 50
-    generateRandomGraphData(data, minVal, maxVal); // 기존 함수 호출
-}
-
-// 초기화 시 날짜 기반 데이터 생성
-void initializeGraphData() {
-    for (int i = 0; i < 4; i++) { // 점포 4개
-        generateRandomGraphDataBasedOnDate(shopGraphData1[i]);
-        generateRandomGraphDataBasedOnDate(shopGraphData2[i]);
-        generateRandomGraphDataBasedOnDate(shopGraphData3[i]);
-    }
-}
-
 void drawCostImageWithGraph(float x, float panelY, int costIndex) {
     float costX = x + 30;
     float costY = panelY + 110;
@@ -253,7 +226,7 @@ void drawCostImageWithGraph(float x, float panelY, int costIndex) {
         drawProgressBar(progressBarX, progressBarY, 320, 20);
 
         // *** 추가된 작대기(라인) *** etc
-        stroke(255); // 라인 색상
+        stroke(255); // 라인 색상 (빨간색)
         strokeWeight(5);   // 라인 두께
         float lineY = progressBarY - 13; // 프로그레스바 위쪽에 선 추가
         line(progressBarX, lineY, progressBarX + 200, lineY); // 라인 시작~끝 X 좌표
@@ -276,30 +249,31 @@ void drawCostImageWithGraph(float x, float panelY, int costIndex) {
         float graphWidth = 200;
         float graphHeight = 30;
 
-        float monthCost = 0;
-        
-        // 날짜 기반 그래프 길이
-        graphLength = getGraphLengthBasedOnDate();
+        float monthCost;
 
-        // Cost별 그래프 출력
+        // 그래프 그리기 및 데이터 합계
         if (costIndex == 0) {
+            graphLength = 30; 
             drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData1, graphLength);
-            monthCost1 = calculateGraphSum(graphData1, graphLength);
+            monthCost = calculateGraphSum(graphData1, graphLength);
         } else if (costIndex == 1) {
+          //시연때는 이걸 건들이자
+            graphLength = 30; 
             drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData2, graphLength);
-            monthCost2 = calculateGraphSum(graphData2, graphLength);
+            monthCost = calculateGraphSum(graphData2, graphLength);
         } else {
+            graphLength = 30; 
             drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData3, graphLength);
-            monthCost3 = calculateGraphSum(graphData3, graphLength);
+            monthCost = calculateGraphSum(graphData3, graphLength);
         }
-        // 날짜 기반 동적 프로그레스 바 추가
-        if (costIndex == 0) {
-            drawDynamicProgressBar(graphX - 3, graphY + graphHeight + 46, graphWidth + 44, 5, graphData1, 1);
-        } else if (costIndex == 1) {
-            drawDynamicProgressBar(graphX - 3, graphY + graphHeight + 46, graphWidth + 44, 5, graphData2, 2);
-        } else if (costIndex == 2) {
-            drawDynamicProgressBar(graphX - 3, graphY + graphHeight + 40, graphWidth + 44, 5, graphData3, 3);
-        }
+        // Cost별 동적 프로그레스 바 추가
+       if (costIndex == 0) {
+    drawDynamicProgressBar(graphX-3, graphY + graphHeight + 46, graphWidth+44, 5, graphData1, 1);
+} else if (costIndex == 1) {
+    drawDynamicProgressBar(graphX-3, graphY + graphHeight + 46, graphWidth+44, 5, graphData2, 2);
+} else if (costIndex == 2) {
+    drawDynamicProgressBar(graphX-3, graphY + graphHeight + 40, graphWidth+44, 5, graphData3, 3);
+}
 
 
          // costMonth 원 위치 오프셋 조정
@@ -329,8 +303,7 @@ void drawCostImageWithGraph(float x, float panelY, int costIndex) {
     // 텍스트 버튼 출력 (Cost4 포함)
     float panelWidth = 324;
     float buttonBaseY = panelY + 160;
-    drawSubButtons(x + 23, buttonBaseY-70, panelWidth, 50, currentShopIndex); // shopIndex 추가
-
+    drawSubButtons(x + 23, buttonBaseY, panelWidth, 50);
 }
 
 
@@ -442,22 +415,6 @@ void drawMonitoringAndCostPanel(float baseYOffset) {
 }
 
 
-int[][][] selectedSubButtonIndices = new int[4][4][3]; // 4개 점포, 각 점포당 4개 그룹, 3개의 버튼
-
-void initializeButtonStates() {
-  for (int shop = 0; shop < 4; shop++) {
-    for (int group = 0; group < 4; group++) {
-      selectedSubButtonIndices[shop][group][1] = 1; // 기본값은 '표준' 버튼 (1)
-    }
-  }
-}
-
-String[][] subButtonTexts = {
-  {"절약", "표준", "최적"},
-  {"절약", "표준", "최적"},
-  {"절약", "표준", "최적"},
-  {"절약", "표준", "최적"}
-};
 
 
 void drawMonitoringText(float panelX, float panelY, float panelWidth, float panelHeight) {
@@ -478,24 +435,23 @@ void drawMonitoringText(float panelX, float panelY, float panelWidth, float pane
     }
 }
 
-
-void drawSubButtons(float panelX, float panelY, float panelWidth, float panelHeight, int shopIndex) {
-  float sectionWidth = panelWidth / 4; // 각 그룹의 폭
+void drawSubButtons(float panelX, float panelY, float panelWidth, float panelHeight) {
+  float sectionWidth = panelWidth / 4; // 4개의 점포를 균등하게 나눔
   textAlign(CENTER, CENTER);
 
-  for (int group = 0; group < 4; group++) { // 4개의 그룹 반복
-    float groupX = panelX + (group * sectionWidth); // 그룹 시작 X 좌표
-    float groupY = panelY; // 그룹 Y 위치
-    float buttonSpacing = sectionWidth / 3+1; // 버튼 간 가로 간격
+  for (int shop = 0; shop < selectedSubButtonIndices.length; shop++) {
+    float shopX = panelX + (shop * sectionWidth); // 각 점포의 X 좌표
+    float buttonY = panelY + panelHeight / 2 - 30; // 버튼 Y 위치
+    float buttonSpacing = sectionWidth / 3; // 버튼 간 간격
 
-    for (int i = 0; i < 3; i++) { // 각 그룹당 3개의 버튼
-      float buttonX = groupX + (i * buttonSpacing) + buttonSpacing / 2;
-      float buttonY = groupY;
+    for (int i = 0; i < subButtonTexts[shop].length; i++) {
+      int index = (selectedSubButtonIndices[shop] + i) % 3; // 순환된 인덱스 계산
+      float buttonX = shopX + (i * buttonSpacing) + buttonSpacing / 2; // 버튼 X 좌표
 
-      // 선택된 버튼 강조 처리
-      textSize(selectedSubButtonIndices[shopIndex][group][i] == 1 ? 14 : 10);
-      fill(selectedSubButtonIndices[shopIndex][group][i] == 1 ? color(255) : color(200));
-      text(subButtonTexts[group][i], buttonX, buttonY);
+      // 버튼 색상 및 강조 처리
+      textSize(i == 1 ? 16 : 12); // 가운데 버튼만 강조
+      fill(i == 1 ? color(255, 231, 152) : 200); // 가운데 버튼 강조 색상
+      text(subButtonTexts[shop][index], buttonX, buttonY);
     }
   }
 }
