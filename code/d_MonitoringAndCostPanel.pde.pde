@@ -86,7 +86,7 @@ void drawDynamicProgressBar(float x, float y, float width, float height, float[]
     // 배경 바 그리기
     noStroke();
     fill(100); // 회색 배경 바
-    rect(x, y, width, height);
+    rect(x, y, width, height, height/2);
 
     // 그래프 타입별 색상 지정
     color graphColor;
@@ -102,15 +102,15 @@ void drawDynamicProgressBar(float x, float y, float width, float height, float[]
 
     // 초과 여부 확인
     if (sum <= maxSum) {
-        // 합계가 1200 이하일 경우, 지정된 색상 출력
+        // 합계가 2100 이하일 경우, 지정된 색상 출력
         fill(graphColor);
-        rect(x, y, progressWidth, height);
+        rect(x, y, progressWidth, height, height / 2);
     } else {
-        // 합계가 1200을 초과하면, 초과 길이만큼 빨간색 바 추가
+        // 합계가 2100을 초과하면, 초과 길이만큼 빨간색 바 추가
         float overWidth = map(sum - maxSum, 0, maxSum, 0, width); // 초과 길이 계산
 
         fill(graphColor); // 지정된 색상
-        rect(x, y, width, height); // 전체 바 채움
+        rect(x, y, width, height, height / 2); // 전체 바 채움
 
         fill(255, 0, 0); // 빨간색 바
         rect(x + (width - overWidth), y, overWidth, height); // 초과된 부분만 빨간색 출력
@@ -176,7 +176,7 @@ void drawProgressBar(float x, float y, float width, int dataLength) {
     // 프로그레스 바 그리기
     noStroke();
     fill(255); // 흰색
-    rect(x, y, progressWidth, 5); // 동적으로 계산된 길이
+    rect(x, y, progressWidth, 5, 5/2); // 동적으로 계산된 길이
 }
 void drawNewProgressBar(float x, float y, float width, int progressValue) {
     float maxLength = 30.0; // 최대 값
@@ -243,6 +243,12 @@ void initializeGraphData1() {
     generateRandomGraphData(shopGraphData3[i], 0, 50);  // 그래프 3 범위: 0 ~ 50
   }
 } 
+
+float getCost4LineLength() {
+    int day = getCurrentDateInfo()[2]; // 현재 날짜의 '일' 가져오기
+    return map(day, 1, 30, 0, 200); // 최소 10, 최대 200으로 매핑
+}
+
 void drawCostImageWithGraph(float x, float panelY, int costIndex) {
     float costX = x + 30;
     float costY = panelY + 110;
@@ -255,13 +261,15 @@ void drawCostImageWithGraph(float x, float panelY, int costIndex) {
         // Cost4 프로그레스 바 위치 오프셋
         float progressBarX = costX + 40; // X 위치 조정
         float progressBarY = costY + 150; // Y 위치 조정
-        drawProgressBar(progressBarX, progressBarY, 320, 20);
 
         // *** 추가된 작대기(라인) *** etc
         stroke(255); // 라인 색상
         strokeWeight(5);   // 라인 두께
+        strokeCap(ROUND);
+        float lineLength = getCost4LineLength(); // 날짜 기반 선 길이 계산
         float lineY = progressBarY - 13; // 프로그레스바 위쪽에 선 추가
-        line(progressBarX, lineY, progressBarX + 200, lineY); // 라인 시작~끝 X 좌표
+        line(progressBarX, lineY, progressBarX + lineLength, lineY); // 라인 시작~끝 X 좌표
+        line(progressBarX, progressBarY, progressBarX + lineLength, progressBarY); // 라인 시작~끝 X 좌표
         noStroke(); // 기존 스타일로 복원
     } else {
         if (costIndex == 2) {
