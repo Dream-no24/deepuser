@@ -31,7 +31,6 @@ PImage trackImg;
 void drawInfoPanel(float infoPanelYOffset) {
   // Cigarette Manager 이미지 불러오기 및 배경에 그리기
   PImage cigaretteManagerImg = loadImage("../data/CigaretteManager.png");
-  PImage trackImg = loadImage("../data/Track.png");
   image(cigaretteManagerImg, 11.5, infoPanelYOffset, 350, 212);
 
   // 버튼 Y 위치 계산
@@ -55,9 +54,17 @@ void drawInfoPanel(float infoPanelYOffset) {
   int annualLifeReduction = totalAnnualCigarettes * lifeReductionPerCigarette; // 연간 수명 단축 (분)
 
   // 오늘 날짜를 기반으로 이번 달의 진행률 계산
-  int dayOfMonth = day(); // 오늘 날짜
-  int totalDaysInMonth = monthDays(month(), year()); // 이번 달 총 일수 계산
-  int progressPercentage = (int) ((float) dayOfMonth / totalDaysInMonth * 100); // 이번 달 진행률
+  int dayOfWell = 19; 
+  int progressPercentage = (int) ((float) dayOfWell / 31 * 100); // 31일 기준 진행률
+  
+  PImage trackImg;
+  if (dayOfWell < 2) {
+      trackImg = loadImage("../data/forOneTrack.png"); // 3 미만일 때 사용
+  } else if (dayOfWell < 6) {
+      trackImg = loadImage("../data/shortTrack.png"); // 10 미만일 때 사용
+  } else {
+      trackImg = loadImage("../data/Track.png"); // 기본 트랙 사용
+  }
 
   // Track 이미지 진행률 출력 부분
   float progressBarX = 36.5; // 프로그래스바 시작 X 좌표
@@ -68,12 +75,14 @@ void drawInfoPanel(float infoPanelYOffset) {
 
   // 진행된 부분만 출력
   image(trackImg, progressBarX, progressBarY, progressBarWidth, fixedHeight); 
-
-  fill(255);
-  textAlign(LEFT, CENTER);
-  textSize(8);
-  text(progressPercentage + "%", progressBarX + progressBarWidth - 18, progressBarY + fixedHeight / 2 - 0.3); // 진행률 텍스트 출력
-
+  
+  if (dayOfWell > 2) {
+    fill(255);
+    textAlign(LEFT, CENTER);
+    textSize(8);
+    text(progressPercentage + "%", progressBarX + progressBarWidth - 22, progressBarY + fixedHeight / 2 - 0.3); // 진행률 텍스트 출력
+  }
+  
   // 월 개비수와 연간 개비수 텍스트 출력 (항상 표시)
   fill(0);
   textAlign(CENTER, BASELINE);
@@ -162,16 +171,6 @@ void drawSplitMessageWithHighlight(String[] splitMessage, float centerX, float c
   text(splitMessage[1], startX + prefixWidth + numberWidth / 2, centerY - 0.5); // 숫자 출력
   textSize(baseTextSize); // 일반 텍스트 크기
   text(splitMessage[2], startX + prefixWidth + numberWidth + suffixWidth / 2, centerY + 0.5); // 뒷부분 출력
-}
-
-// 특정 달의 일수 계산 함수
-int monthDays(int month, int year) {
-  if (month == 2) { // 2월은 윤년 계산
-    if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) return 29;
-    else return 28;
-  }
-  if (month == 4 || month == 6 || month == 9 || month == 11) return 30; // 30일인 달
-  return 31; // 나머지는 31일
 }
 
 // 버튼 클릭 감지 함수
