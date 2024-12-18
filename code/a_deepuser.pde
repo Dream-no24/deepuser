@@ -14,8 +14,8 @@ void setup() {
   statusbar = loadImage("../data/Statusbar.png");
   punchhole = loadImage("../data/punchhole.png");
   bezel = loadImage("../data/iPhone.png"); // 배젤 이미지 로드
-  font = createFont("../data/NanumGothicCoding.ttf", 48, true);
-  textFont(font);
+  regularFont = createFont("../data/NanumGothicCoding.ttf", 48, true);
+  textFont(regularFont);
   initializeGraphData(); // 그래프 데이터 초기화
   updateGraphDataForShop(); // 초기 그래프 데이터 설정
 
