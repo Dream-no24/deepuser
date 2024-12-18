@@ -1,4 +1,4 @@
-PFont regularFont, boldFont, blackFont;
+PFont regularFont, boldFont, blackFont, swipeButtonFont;
 PImage img;
 PImage statusbar;
 PImage punchhole;
@@ -17,6 +17,7 @@ void setup() {
   regularFont = createFont("../data/NotoSansKR-Regular.ttf", 48);
   boldFont = createFont("../data/NotoSansKR-Bold.ttf", 48);
   blackFont = createFont("../data/NotoSansKR-Black.ttf", 48);
+  swipeButtonFont = createFont("../data/NanumGothicCoding.ttf", 48);
   scheduleData = initializeScheduleData();
   filterDataWithinOneMonth();
   loadMonitoringAndCostImages(); // 이미지 로드

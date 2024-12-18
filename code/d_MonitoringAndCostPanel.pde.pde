@@ -102,6 +102,7 @@ void drawImagePanel(float offsetX, float y, PImage img) {
 // 꺾쇠 버튼 그리기 함수
 void drawSwipeButtons(float baseYOffset) {
   fill(255); 
+  textFont(swipeButtonFont);
   textSize(12);
   textAlign(CENTER, CENTER);
 
