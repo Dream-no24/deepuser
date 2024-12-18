@@ -24,12 +24,43 @@ String[][] panelText = {
   {"55", "lx"}, 
   {"2.5", "h"}
 };
+float[][] shopGraphData1 = new float[4][30]; // 그래프 데이터 1
+float[][] shopGraphData2 = new float[4][30]; // 그래프 데이터 2
+float[][] shopGraphData3 = new float[4][30]; // 그래프 데이터 3
+void generateRandomGraphData(float[] data, int minVal, int maxVal) {
+  int length = 30; // 고정된 길이
+  for (int i = 0; i < length; i++) {
+    data[i] = random(minVal, maxVal); // 지정된 범위 내 랜덤 값 생성
+  }
+}
+
+void initializeGraphData() {
+  for (int i = 0; i < 4; i++) { // 점포 4개
+    generateRandomGraphData(shopGraphData1[i], 20, 80); // 그래프 1 범위: 20 ~ 80
+    generateRandomGraphData(shopGraphData2[i], 10, 60); // 그래프 2 범위: 10 ~ 60
+    generateRandomGraphData(shopGraphData3[i], 0, 50);  // 그래프 3 범위: 0 ~ 50
+  }
+}
+void updateGraphDataForShop() {
+  if (currentShopIndex >= 0 && currentShopIndex < shopGraphData1.length) {
+    int minLength = min(shopGraphData1[currentShopIndex].length, graphData1.length);
+
+    for (int i = 0; i < minLength; i++) {
+      graphData1[i] = shopGraphData1[currentShopIndex][i];
+      graphData2[i] = shopGraphData2[currentShopIndex][i];
+      graphData3[i] = shopGraphData3[currentShopIndex][i];
+    }
+  } else {
+    println("Invalid shop index: " + currentShopIndex);
+  }
+}
+
 // 그래프 결과 변수 선언
 float monthCost1, monthCost2, monthCost3;
 // 그래프 데이터
-float[] graphData1 = {0, 10, 20, 30, 40, 50, 40, 30, 20, 10, 20, 40, 50, 40, 20,
-                      0, 10, 20, 30, 40, 50, 40, 30, 20, 10, 20, 40, 50, 30};
-float[] graphData2 =  {0, 10, 9, 30, 40, 50, 45, 10, 25, 15, 25, 30, 55, 45, 35,
+float[] graphData1 = {30, 60, 50, 60, 70, 80, 60, 30, 20, 60, 80, 40, 50, 40, 70,
+                      70, 50, 40, 30, 40, 50, 40, 30, 70, 60, 80, 60, 50, 30};
+float[] graphData2 =  {10, 10, 9, 30, 40, 50, 45, 10, 25, 15, 25, 30, 55, 45, 35,
                      15, 35, 25, 10, 50, 55, 40, 30, 20, 20, 25, 45, 55, 35};
 float[] graphData3 = {0, 20, 40, 30, 50, 10, 40, 60, 40, 20, 40, 30, 50, 20, 30,
                       0, 20, 40, 30, 20, 10, 30, 50, 40, 20, 40, 60, 80, 50};
@@ -43,6 +74,51 @@ float calculateGraphSum(float[] data, int length) {
     }
     return (sum * 100) / 30.0; // 합계에 100을 곱하고 30으로 나눔
 }
+void drawDynamicProgressBar(float x, float y, float width, float height, float[] data, int graphType) {
+    // 데이터 합계 계산
+    float sum = 0;
+    for (int i = 0; i < data.length; i++) {
+        sum += data[i];
+    }
+
+    float maxSum = 1200; // 기준값 (40 * 30)
+    float progressWidth = map(sum, 0, maxSum, 0, width); // 기본 프로그레스 바 길이 계산
+
+    // 배경 바 그리기
+    noStroke();
+    fill(100); // 회색 배경 바
+    rect(x, y, width, height);
+
+    // 그래프 타입별 색상 지정
+    color graphColor;
+    if (graphType == 1) {
+        graphColor = color(154, 172, 156); // #9AAC9C
+    } else if (graphType == 2) {
+        graphColor = color(255, 231, 152); // #FFE798
+    } else if (graphType == 3) {
+        graphColor = color(156, 165, 207); // #9CA5CF
+    } else {
+        graphColor = color(255); // 기본 흰색
+    }
+
+    // 초과 여부 확인
+    if (sum <= maxSum) {
+        // 합계가 1200 이하일 경우, 지정된 색상 출력
+        fill(graphColor);
+        rect(x, y, progressWidth, height);
+    } else {
+        // 합계가 1200을 초과하면, 초과 길이만큼 빨간색 바 추가
+        float overWidth = map(sum - maxSum, 0, maxSum, 0, width); // 초과 길이 계산
+
+        fill(graphColor); // 지정된 색상
+        rect(x, y, width, height); // 전체 바 채움
+
+        fill(255, 0, 0); // 빨간색 바
+        rect(x + (width - overWidth), y, overWidth, height); // 초과된 부분만 빨간색 출력
+    }
+}
+
+
 
 void drawGraph30(float x, float y, float width, float height, int graphType, int length) {
     noFill();
@@ -82,7 +158,7 @@ void drawGraph30(float x, float y, float width, float height, int graphType, int
 
     // 프로그레스 바 그리기
     float progressBarY = y + height + 10; // 프로그레스 바 Y 위치
-    float progressBarWidth = map(drawLength, 0, data.length, 0, width + 10); // 길이에 따라 늘어남
+    float progressBarWidth = map(drawLength, 0, data.length, 0, width); // 길이에 따라 늘어남
 
     fill(255); // 흰색으로 프로그레스 바 채우기
     rect(x, progressBarY, progressBarWidth, 5); // 프로그레스 바 출력
@@ -96,7 +172,7 @@ void drawCostMonthText(float x, float y, float value) {
 }
 void drawProgressBar(float x, float y, float width, int dataLength) {
     float maxLength = 30.0; // 최대 길이
-    float progressWidth = map(dataLength, 0, maxLength, 0, width); // 길이 비례 계산
+    float progressWidth = map(dataLength, 0, maxLength, 0, width+45); // 길이 비례 계산
 
     // 프로그레스 바 그리기
     noStroke();
@@ -133,11 +209,18 @@ void drawCostImageWithGraph(float x, float panelY, int costIndex) {
     if (costIndex == 3) {
         costY += 20; // Cost4 위치 조정
         drawScaledImage(costX, costY, costImages[costIndex], 0.9);
-        
+
         // Cost4 프로그레스 바 위치 오프셋
         float progressBarX = costX + 40; // X 위치 조정
         float progressBarY = costY + 150; // Y 위치 조정
-        drawProgressBar(progressBarX, progressBarY, 200, 20);
+        drawProgressBar(progressBarX, progressBarY, 320, 20);
+
+        // *** 추가된 작대기(라인) *** etc
+        stroke(255); // 라인 색상 (빨간색)
+        strokeWeight(5);   // 라인 두께
+        float lineY = progressBarY - 13; // 프로그레스바 위쪽에 선 추가
+        line(progressBarX, lineY, progressBarX + 200, lineY); // 라인 시작~끝 X 좌표
+        noStroke(); // 기존 스타일로 복원
     } else {
         if (costIndex == 2) {
             costY += 6; // Cost3 위치 조정
@@ -164,6 +247,7 @@ void drawCostImageWithGraph(float x, float panelY, int costIndex) {
             drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData1, graphLength);
             monthCost = calculateGraphSum(graphData1, graphLength);
         } else if (costIndex == 1) {
+          //시연때는 이걸 건들이자
             graphLength = 30; 
             drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData2, graphLength);
             monthCost = calculateGraphSum(graphData2, graphLength);
@@ -172,6 +256,16 @@ void drawCostImageWithGraph(float x, float panelY, int costIndex) {
             drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData3, graphLength);
             monthCost = calculateGraphSum(graphData3, graphLength);
         }
+        // Cost별 동적 프로그레스 바 추가
+       if (costIndex == 0) {
+    drawDynamicProgressBar(graphX-3, graphY + graphHeight + 46, graphWidth+44, 5, graphData1, 1);
+} else if (costIndex == 1) {
+    drawDynamicProgressBar(graphX-3, graphY + graphHeight + 46, graphWidth+44, 5, graphData2, 2);
+} else if (costIndex == 2) {
+    drawDynamicProgressBar(graphX-3, graphY + graphHeight + 40, graphWidth+44, 5, graphData3, 3);
+}
+
+
          // costMonth 원 위치 오프셋 조정
     float costMonthX = graphX + graphWidth - 9; // 기본 X 위치
     float costMonthY = graphY - 32; // 기본 Y 위치
@@ -184,14 +278,14 @@ void drawCostImageWithGraph(float x, float panelY, int costIndex) {
 
     drawCostMonthText(costMonthX, costMonthY, monthCost);
 
-        
-
-        // Cost별 프로그레스 바 위치 오프셋
+         // Cost별 프로그레스 바 위치 오프셋
         float progressBarX = costX + 37; // X 위치 조정
         float progressBarY = costY + graphHeight + 10; // 기본 Y 위치
         if (costIndex == 0) progressBarY += 130; // Cost2 위치 미세 조정
         if (costIndex == 1) progressBarY += 130; // Cost2 위치 미세 조정
-        if (costIndex == 2) progressBarY += 125; // Cost3 위치 미세 조정
+        if (costIndex == 2) {
+          progressBarY += 125; // Cost3 위치 미세 조정
+        }
 
         drawProgressBar(progressBarX, progressBarY, graphWidth, graphLength);
     }
@@ -352,19 +446,20 @@ void drawSwipeButtons(float baseYOffset) {
 }
 
 
-// 좌우 버튼 클릭 처리
 void changePlacePressed(float baseYOffset) {
   float yOffset = baseYOffset; // 꺾쇠 버튼의 y 위치 계산
 
   // 왼쪽 버튼 클릭
   if (mouseX > 0 && mouseX < 50 && mouseY > yOffset - 50 && mouseY < yOffset + 50 && currentShopIndex > 0) {
     currentShopIndex--;
-    targetSwipeX = -currentShopIndex * width;
+    updateGraphDataForShop();
   }
 
   // 오른쪽 버튼 클릭
   if (mouseX > width - 50 && mouseX < width && mouseY > yOffset - 50 && mouseY < yOffset + 50 && currentShopIndex < shops.length - 1) {
     currentShopIndex++;
-    targetSwipeX = -currentShopIndex * width;
+    updateGraphDataForShop();
   }
+
+  targetSwipeX = -currentShopIndex * width;
 }

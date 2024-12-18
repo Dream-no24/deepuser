@@ -16,6 +16,8 @@ void setup() {
   bezel = loadImage("../data/iPhone.png"); // 배젤 이미지 로드
   font = createFont("../data/NanumGothicCoding.ttf", 48, true);
   textFont(font);
+  initializeGraphData(); // 그래프 데이터 초기화
+  updateGraphDataForShop(); // 초기 그래프 데이터 설정
 
   loadMonitoringAndCostImages(); // 이미지 로드
 }
@@ -86,10 +88,6 @@ void mousePressed() {
         selectedSubButtonIndices[group] = i; // 해당 그룹의 선택된 버튼 인덱스 업데이트
         println("Group " + group + " Button: " + subButtonTexts[group][i]); // 디버깅 메시지
       }
-
-      // 버튼 영역 시각화 (디버깅용)
-      fill(255, 0, 0, 100); // 반투명 빨간색
-      rect(buttonX - 20, buttonY - 20, 40, 40); // 버튼 클릭 영역 표시
     }
   }
 
@@ -108,10 +106,6 @@ void mousePressed() {
       currentCostImageIndex[currentShopIndex] = i; // Cost 이미지 전환
       println("Shop: " + shops[currentShopIndex] + " - Switched to Cost" + (i + 1));
     }
-
-    // 버튼 자리 영역 시각화 (디버깅용)
-    fill(0, 255, 0, 100); // 반투명 초록색
-    rect(buttonX, buttonY, sectionWidthCost, buttonAreaHeight); // 클릭 가능한 영역 표시
   }
 
   isLocked = true; // 스크롤 잠금 활성화
