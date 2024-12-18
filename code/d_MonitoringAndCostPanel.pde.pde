@@ -34,26 +34,25 @@ void generateRandomGraphData(float[] data, int minVal, int maxVal) {
   }
 }
 
-/* void initializeGraphData() {
-  for (int i = 0; i < 4; i++) { // 점포 4개
-    generateRandomGraphData(shopGraphData1[i], 20, 80); // 그래프 1 범위: 20 ~ 80
-    generateRandomGraphData(shopGraphData2[i], 10, 60); // 그래프 2 범위: 10 ~ 60
-    generateRandomGraphData(shopGraphData3[i], 0, 50);  // 그래프 3 범위: 0 ~ 50
-  }
-} */
+
 void updateGraphDataForShop() {
   if (currentShopIndex >= 0 && currentShopIndex < shopGraphData1.length) {
-    int minLength = min(shopGraphData1[currentShopIndex].length, graphData1.length);
+    println("Updating graph data for shop: " + currentShopIndex);
+    println("Shop Graph Data1: " + Arrays.toString(shopGraphData1[currentShopIndex]));
+    println("Shop Graph Data2: " + Arrays.toString(shopGraphData2[currentShopIndex]));
+    println("Shop Graph Data3: " + Arrays.toString(shopGraphData3[currentShopIndex]));
 
+    int minLength = min(shopGraphData1[currentShopIndex].length, graphData1.length);
     for (int i = 0; i < minLength; i++) {
       graphData1[i] = shopGraphData1[currentShopIndex][i];
       graphData2[i] = shopGraphData2[currentShopIndex][i];
       graphData3[i] = shopGraphData3[currentShopIndex][i];
     }
-  } else {
-    println("Invalid shop index: " + currentShopIndex);
+
+    println("Updated Graph Data1: " + Arrays.toString(graphData1));
   }
 }
+
 
 // 그래프 결과 변수 선언
 float monthCost1, monthCost2, monthCost3;
@@ -237,7 +236,13 @@ void initializeGraphData() {
         generateRandomGraphDataBasedOnDate(shopGraphData3[i]);
     }
 }
-
+void initializeGraphData1() {
+  for (int i = 0; i < 4; i++) { // 점포 4개
+    generateRandomGraphData(shopGraphData1[i], 20, 80); // 그래프 1 범위: 20 ~ 80
+    generateRandomGraphData(shopGraphData2[i], 10, 60); // 그래프 2 범위: 10 ~ 60
+    generateRandomGraphData(shopGraphData3[i], 0, 50);  // 그래프 3 범위: 0 ~ 50
+  }
+} 
 void drawCostImageWithGraph(float x, float panelY, int costIndex) {
     float costX = x + 30;
     float costY = panelY + 110;
@@ -276,43 +281,45 @@ void drawCostImageWithGraph(float x, float panelY, int costIndex) {
         float graphWidth = 200;
         float graphHeight = 30;
 
-        float monthCost = 0;
-        
-        // 날짜 기반 그래프 길이
-        graphLength = getGraphLengthBasedOnDate();
+        float monthCost = 0; // 기본값 0으로 초기화
 
-        // Cost별 그래프 출력
-        if (costIndex == 0) {
-            drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData1, graphLength);
-            monthCost1 = calculateGraphSum(graphData1, graphLength);
-        } else if (costIndex == 1) {
-            drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData2, graphLength);
-            monthCost2 = calculateGraphSum(graphData2, graphLength);
-        } else {
-            drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData3, graphLength);
-            monthCost3 = calculateGraphSum(graphData3, graphLength);
-        }
-        // 날짜 기반 동적 프로그레스 바 추가
-        if (costIndex == 0) {
-            drawDynamicProgressBar(graphX - 3, graphY + graphHeight + 46, graphWidth + 44, 5, graphData1, 1);
-        } else if (costIndex == 1) {
-            drawDynamicProgressBar(graphX - 3, graphY + graphHeight + 46, graphWidth + 44, 5, graphData2, 2);
-        } else if (costIndex == 2) {
-            drawDynamicProgressBar(graphX - 3, graphY + graphHeight + 40, graphWidth + 44, 5, graphData3, 3);
-        }
+// 날짜 기반 그래프 길이
+graphLength = getGraphLengthBasedOnDate();
 
+// Cost별 그래프 출력
+if (costIndex == 0) {
+    drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData1, graphLength);
+    monthCost = calculateGraphSum(graphData1, graphLength); // monthCost에 결과 저장
+} else if (costIndex == 1) {
+    drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData2, graphLength);
+    monthCost = calculateGraphSum(graphData2, graphLength); // monthCost에 결과 저장
+} else {
+    drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData3, graphLength);
+    monthCost = calculateGraphSum(graphData3, graphLength); // monthCost에 결과 저장
+}
 
-         // costMonth 원 위치 오프셋 조정
-    float costMonthX = graphX + graphWidth - 9; // 기본 X 위치
-    float costMonthY = graphY - 32; // 기본 Y 위치
+// 날짜 기반 동적 프로그레스 바 추가
+if (costIndex == 0) {
+    drawDynamicProgressBar(graphX - 3, graphY + graphHeight + 46, graphWidth + 44, 5, graphData1, 1);
+} else if (costIndex == 1) {
+    drawDynamicProgressBar(graphX - 3, graphY + graphHeight + 46, graphWidth + 44, 5, graphData2, 2);
+} else if (costIndex == 2) {
+    drawDynamicProgressBar(graphX - 3, graphY + graphHeight + 40, graphWidth + 44, 5, graphData3, 3);
+}
 
-    if (costIndex == 1) costMonthY += 0; // Cost2 원 위치 미세 조정
-    if (costIndex == 2) {
-        costMonthX += 10; // Cost3 X 위치 왼쪽으로 이동
-        costMonthY += -7; // Cost3 Y 위치 위로 이동
-    }
+// costMonth 원 위치 오프셋 조정
+float costMonthX = graphX + graphWidth - 9; // 기본 X 위치
+float costMonthY = graphY - 32; // 기본 Y 위치
 
-    drawCostMonthText(costMonthX, costMonthY, monthCost);
+if (costIndex == 1) costMonthY += 0; // Cost2 원 위치 미세 조정
+if (costIndex == 2) {
+    costMonthX += 10; // Cost3 X 위치 왼쪽으로 이동
+    costMonthY += -7; // Cost3 Y 위치 위로 이동
+}
+
+// monthCost 값 출력 (계산된 값을 사용)
+drawCostMonthText(costMonthX, costMonthY, monthCost);
+
 
          // Cost별 프로그레스 바 위치 오프셋
         float progressBarX = costX + 37; // X 위치 조정
