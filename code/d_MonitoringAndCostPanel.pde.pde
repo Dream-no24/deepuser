@@ -113,7 +113,7 @@ void drawDynamicProgressBar(float x, float y, float width, float height, float[]
         rect(x, y, width, height, height / 2); // 전체 바 채움
 
         fill(255, 0, 0); // 빨간색 바
-        rect(x + (width - overWidth), y, overWidth, height); // 초과된 부분만 빨간색 출력
+        rect(x + (width - overWidth), y, overWidth, height, height / 2); // 초과된 부분만 빨간색 출력
     }
 }
 
@@ -268,7 +268,7 @@ void drawCostImageWithGraph(float x, float panelY, int costIndex) {
         strokeCap(ROUND);
         float lineLength = getCost4LineLength(); // 날짜 기반 선 길이 계산
         float lineY = progressBarY - 13; // 프로그레스바 위쪽에 선 추가
-        line(progressBarX, lineY, progressBarX + lineLength, lineY); // 라인 시작~끝 X 좌표
+        line(progressBarX, lineY, progressBarX + lineLength - 20, lineY); // 라인 시작~끝 X 좌표
         line(progressBarX, progressBarY, progressBarX + lineLength, progressBarY); // 라인 시작~끝 X 좌표
         noStroke(); // 기존 스타일로 복원
     } else {
