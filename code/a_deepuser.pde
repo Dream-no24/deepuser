@@ -100,11 +100,6 @@ float buttonBaseY = 60 + 220 + 400 - 95 + pos; // 버튼 Y 위치
 for (int group = 0; group < 4; group++) { // 각 그룹 반복
   float groupX = 21 + (group * sectionWidth) + 45; // 그룹 시작 X 위치
 
-  // 버튼 영역 표시 (시각화)
-  fill(255, 0, 0, 100); // 반투명 빨간색으로 영역 표시
-  noStroke();
-  rect(groupX - sectionWidth / 2, buttonBaseY - 20, sectionWidth, 40);
-
   // 클릭 감지
   if (mouseX > groupX - sectionWidth / 2 && mouseX < groupX + sectionWidth / 2 &&
       mouseY > buttonBaseY - 20 && mouseY < buttonBaseY + 20) {
