@@ -1,4 +1,4 @@
-PFont font;
+PFont regularFont, boldFont, blackFont;
 PImage img;
 PImage statusbar;
 PImage punchhole;
@@ -19,10 +19,16 @@ void setup() {
   initializeGraphData(); // 그래프 데이터 초기화
   updateGraphDataForShop(); // 초기 그래프 데이터 설정
 
+  regularFont = createFont("../data/NotoSansKR-Regular.ttf", 48);
+  boldFont = createFont("../data/NotoSansKR-Bold.ttf", 48);
+  blackFont = createFont("../data/NotoSansKR-Black.ttf", 48);
+  scheduleData = initializeScheduleData();
+  filterDataWithinOneMonth();
   loadMonitoringAndCostImages(); // 이미지 로드
 }
 
 void draw() {
+  textFont(regularFont);
   background(50, 50, 50);
   image(img, 5, 5, 360, 800); // 위치 조정
 
@@ -40,9 +46,15 @@ void draw() {
   drawIssueAndSchedulePanels(issueAndScheduleYOffset);
   float monitoringAndCostYOffset = issueAndScheduleYOffset + 200; 
   drawMonitoringAndCostPanel(monitoringAndCostYOffset);
-  float calendarBaseYOffset = monitoringAndCostYOffset + 365;
-  drawCalendarPanel(calendarBaseYOffset);  
-  float tablePanelYOffset = calendarBaseYOffset + 315;
+  float calendarBaseYOffset = monitoringAndCostYOffset + 365;  
+  float calendarYOffset = monitoringAndCostYOffset + 365;
+  drawCalendarPanel(calendarYOffset,false);
+  // 캘린더 패널의 현재 높이를 반영
+  float scaleFactor = isCalendarMinimized ? minimizedWidth / originalWidth : 1.0;
+  float calendarPanelHeight = isCalendarMinimized ? originalHeight * scaleFactor + 22 : originalHeight;
+  
+  // 테이블 패널의 Y 위치를 캘린더 아래로 조정
+  float tablePanelYOffset = calendarYOffset + calendarPanelHeight + 20 * scaleFactor;
   drawTablePanel(tablePanelYOffset);
 
   maxScrollY = tablePanelYOffset + 230 + 50 - height;
@@ -109,6 +121,12 @@ void mousePressed() {
   }
 
   isLocked = true; // 스크롤 잠금 활성화
+  
+  infoPanelMousePressed();
+  // 캘린더 클릭 감지
+  float calendarYOffset = 60 + 220 + 200 + 365; // 캘린더 Y 위치 계산
+  calendarMousePressed(calendarYOffset);
+
 }
 
 
