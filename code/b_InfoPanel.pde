@@ -62,15 +62,17 @@ void drawInfoPanel(float infoPanelYOffset) {
       trackImg = loadImage("../data/forOneTrack.png"); // 3 미만일 때 사용
   } else if (dayOfWell < 6) {
       trackImg = loadImage("../data/shortTrack.png"); // 10 미만일 때 사용
-  } else {
+  } else if (dayOfWell < 20) {
       trackImg = loadImage("../data/Track.png"); // 기본 트랙 사용
-  }
+  } else {
+      trackImg = loadImage("../data/longTrack.png"); // 긴 트랙 사용
+  };
 
   // Track 이미지 진행률 출력 부분
   float progressBarX = 36.5; // 프로그래스바 시작 X 좌표
   float progressBarY = infoPanelYOffset + 175; // 프로그래스바 Y 좌표
   float fixedHeight = 8; // 프로그래스바 고정 세로 높이
-  float fixedWidth = 340; // 프로그래스바 고정 가로 길이
+  float fixedWidth = 285; // 프로그래스바 고정 가로 길이
   float progressBarWidth = dailyCigarettes > targetCigarettes ? 0 : map(progressPercentage, 0, 100, 0, fixedWidth); // 목표 초과 시 0, 아니면 정상 진행
 
   // 진행된 부분만 출력
