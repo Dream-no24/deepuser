@@ -44,12 +44,13 @@ void draw() {
   float calendarBaseYOffset = monitoringAndCostYOffset + 365;  
   float calendarYOffset = monitoringAndCostYOffset + 365;
   drawCalendarPanel(calendarYOffset,false);
-  // 캘린더 패널의 현재 높이를 반영
-  float scaleFactor = isCalendarMinimized ? minimizedWidth / originalWidth : 1.0;
-  float calendarPanelHeight = isCalendarMinimized ? originalHeight * scaleFactor + 22 : originalHeight;
-  
+  // 캘린더 패널의 현재 높이를 계산
+  float calendarPanelHeight = getCalendarPanelHeight();
+
   // 테이블 패널의 Y 위치를 캘린더 아래로 조정
-  float tablePanelYOffset = calendarYOffset + calendarPanelHeight + 20 * scaleFactor;
+  float scaleFactor = isCalendarMinimized ? minimizedWidth / originalWidth : 1.0;
+  float tablePanelYOffset = calendarYOffset + calendarPanelHeight + 25;
+
   drawTablePanel(tablePanelYOffset);
 
   maxScrollY = tablePanelYOffset + 230 + 50 - height;

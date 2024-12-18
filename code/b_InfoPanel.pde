@@ -78,13 +78,13 @@ void drawInfoPanel(float infoPanelYOffset) {
   fill(0);
   textAlign(CENTER, BASELINE);
   textSize(20);
-  text(totalMonthlyCigarettes, 270, infoPanelYOffset + 58); // 이번 달 총 개비수
-  text(totalAnnualCigarettes, 270, infoPanelYOffset + 82); // 연간 총 개비수
+  text(totalMonthlyCigarettes, 267, infoPanelYOffset + 59); // 이번 달 총 개비수
+  text(totalAnnualCigarettes, 267, infoPanelYOffset + 83); // 연간 총 개비수
 
   // 현재 목표와 다음 목표 텍스트 (항상 표시)
   textSize(12);
-  text(String.valueOf(targetCigarettes), 42, infoPanelYOffset + 168.4997); // 현재 목표
-  text("6", 283, infoPanelYOffset + 168.4997); // 다음 목표
+  text("7", 41.9, infoPanelYOffset + 169); // 현재 목표
+  text("6", 282.9, infoPanelYOffset + 169); // 다음 목표
 
   // 페이드 효과 및 문구 변경
   long currentTime = millis();
