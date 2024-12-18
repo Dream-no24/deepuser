@@ -63,63 +63,137 @@ void drawStatusBar() {
 void drawBezel() {
   image(bezel, 0, 0, width, height); // 배젤 이미지 전체 크기 출력
 }
+int lastClickTime = 0; // 마지막 클릭 시간
+int doubleClickThreshold = 300; // 더블클릭 간격 (ms)
+boolean isPendingSingleClick = false; // 단순 클릭 대기 상태
+boolean buttonClicked = false; // 버튼 클릭 여부 플래그
+
 void mousePressed() {
-  // 기존 기능: 모니터링 및 코스트 패널 클릭
-  float monitoringAndCostYOffset = 60 + 220 + 400 + pos;
-  if (mouseX > 5 && mouseX < 365 && mouseY > monitoringAndCostYOffset - 50 && mouseY < monitoringAndCostYOffset + 50) {
-    changePlacePressed(monitoringAndCostYOffset - 35);
+  int currentTime = millis(); // 현재 시간 기록
+  boolean isDoubleClick = false; // 더블클릭 여부 플래그
+
+  // 더블클릭 확인
+  if (currentTime - lastClickTime < doubleClickThreshold) {
+    isDoubleClick = true;
+    isPendingSingleClick = false; // 단순 클릭 대기 취소
+    lastClickTime = 0; // 더블클릭 후 타이머 초기화
+  } else {
+    // 단순 클릭 대기 상태 설정
+    isPendingSingleClick = true;
+    lastClickTime = currentTime;
   }
 
-  // 기존 기능: 가로 정렬된 버튼 클릭 이벤트 처리
-  float panelWidth = 324; // 전체 패널의 너비
-  float sectionWidth = panelWidth / 4; // 각 그룹의 폭 (4개 그룹 기준)
-  float groupY = monitoringAndCostYOffset - 95; // 버튼 그룹의 Y 위치
+  float monitoringAndCostYOffset = 60 + 220 + 400 + pos;
 
-  for (int group = 0; group < subButtonTexts.length; group++) { 
-    float groupX = 21 + (group * sectionWidth); // 각 그룹 시작 X 좌표
-    float buttonSpacing = sectionWidth / 3; // 각 버튼 간격 (가로)
+  // 꺽새 버튼 클릭 처리
+  float yOffset = monitoringAndCostYOffset - 35; // 꺽새 버튼의 Y 위치 계산
 
-    for (int i = 0; i < subButtonTexts[group].length; i++) {
-      float buttonX = groupX + (i * buttonSpacing) + buttonSpacing / 2; // 각 버튼의 X 좌표
-      float buttonY = groupY; // 버튼의 Y 좌표 (고정)
+  // 왼쪽 버튼 클릭
+  if (mouseX > 0 && mouseX < 50 && mouseY > yOffset - 50 && mouseY < yOffset + 50 && currentShopIndex > 0) {
+    currentShopIndex--;
+    updateGraphDataForShop();
+    targetSwipeX = -currentShopIndex * width; // 스와이프 위치 업데이트
+    println("Switched to Shop: " + shops[currentShopIndex]);
+    isLocked = true; // 스크롤 잠금
+    return; // 꺽새 버튼이 클릭된 경우 다른 로직 실행 방지
+  }
 
-      // 클릭 감지 영역 (X 범위: ±20, Y 범위: ±20으로 확장)
-      if (mouseX > buttonX - 20 && mouseX < buttonX + 20 && mouseY > buttonY - 20 && mouseY < buttonY + 20) {
-        selectedSubButtonIndices[group] = i; // 해당 그룹의 선택된 버튼 인덱스 업데이트
-        println("Group " + group + " Button: " + subButtonTexts[group][i]); // 디버깅 메시지
+  // 오른쪽 버튼 클릭
+  if (mouseX > width - 50 && mouseX < width && mouseY > yOffset - 50 && mouseY < yOffset + 50 && currentShopIndex < shops.length - 1) {
+    currentShopIndex++;
+    updateGraphDataForShop();
+    targetSwipeX = -currentShopIndex * width; // 스와이프 위치 업데이트
+    println("Switched to Shop: " + shops[currentShopIndex]);
+    isLocked = true; // 스크롤 잠금
+    return; // 꺽새 버튼이 클릭된 경우 다른 로직 실행 방지
+  }
+
+  // 텍스트 버튼 클릭 감지
+  float panelWidth = 324; // 전체 패널 너비
+  float sectionWidth = panelWidth / 4; // 각 그룹의 폭
+  float buttonY = monitoringAndCostYOffset - 95; // 텍스트 버튼 Y 위치
+
+  buttonClicked = false; // 클릭 여부 초기화
+
+  for (int group = 0; group < 4; group++) {
+    float groupX = 21 + (group * sectionWidth);
+    float buttonSpacing = sectionWidth / 3;
+
+    for (int i = 0; i < subButtonTexts[currentShopIndex][group].length; i++) {
+      float buttonX = groupX + (i * buttonSpacing) + buttonSpacing / 2;
+      float buttonYFixed = buttonY;
+
+      if (mouseX > buttonX - 20 && mouseX < buttonX + 20 &&
+          mouseY > buttonYFixed - 20 && mouseY < buttonYFixed + 20) {
+        buttonClicked = true; // 버튼 클릭 상태 활성화
+        if (isDoubleClick) {
+          rotateButtonOrder(group); // 더블클릭 시 버튼 순서 회전
+          println("Double Clicked: Group " + group + ", Button " + i);
+        }
       }
     }
   }
 
-  // 추가된 기능: 코스트 카드 아래 버튼 자리 클릭 이벤트 처리
+  // 추가된 기능: 코스트 패널 아래 버튼 클릭 처리
   float buttonAreaHeight = 20; // 버튼 영역 높이
-  float panelXOffset = 19; // 코스트 카드 시작 X 좌표
-  float sectionWidthCost = panelWidth / 4; // 각 버튼의 가로 길이 (4개로 분할)
-  float buttonY = monitoringAndCostYOffset + 100; // 버튼 영역의 Y 위치
+  float panelXOffset = 19; // 코스트 패널 시작 X 좌표
+  float sectionWidthCost = panelWidth / 4; // 코스트 버튼 너비
+  float costButtonY = monitoringAndCostYOffset + 100; // 코스트 버튼 Y 위치
 
   for (int i = 0; i < 4; i++) {
-    float buttonX = panelXOffset + i * sectionWidthCost; // 각 버튼의 X 위치 계산
+    float buttonX = panelXOffset + i * sectionWidthCost; // 각 버튼의 X 위치
 
-    // 클릭 감지 (코스트 카드 아래 버튼 자리)
+    // 클릭 영역 감지
     if (mouseX > buttonX && mouseX < buttonX + sectionWidthCost &&
-        mouseY > buttonY && mouseY < buttonY + buttonAreaHeight) {
-      currentCostImageIndex[currentShopIndex] = i; // Cost 이미지 전환
+        mouseY > costButtonY && mouseY < costButtonY + buttonAreaHeight) {
+      currentCostImageIndex[currentShopIndex] = i; // 이미지 인덱스 변경
       println("Shop: " + shops[currentShopIndex] + " - Switched to Cost" + (i + 1));
+      buttonClicked = true; // 버튼 클릭 상태 활성화
     }
   }
 
-  isLocked = true; // 스크롤 잠금 활성화
+  // 버튼 클릭 시 스크롤 잠금, 버튼 클릭이 없으면 스크롤 활성화
+  isLocked = buttonClicked;
 }
 
+// 단순 클릭 지연 처리
+void delayDoubleClick(int group) {
+  new Thread(() -> {
+    try {
+      Thread.sleep(doubleClickThreshold); // 더블클릭 대기 시간만큼 지연
+      if (isPendingSingleClick) {
+        // 대기 시간이 지나도 더블클릭 발생하지 않으면 단순 클릭 처리
+        println("Single Click Detected: Group " + group);
+        isPendingSingleClick = false;
+      }
+    } catch (InterruptedException e) {
+      println("Error in delayDoubleClick: " + e);
+    }
+  }).start();
+}
 
-// 마우스 드래그 이벤트
-void mouseDragged(MouseEvent event) {
-  if (isLocked) {
+void rotateButtonOrder(int group) {
+  int shopIndex = currentShopIndex; // 현재 점포 인덱스
+
+  // 현재 점포의 버튼 순서 회전
+  String[] buttons = subButtonTexts[shopIndex][group];
+  String temp = buttons[0];
+  for (int i = 0; i < buttons.length - 1; i++) {
+    buttons[i] = buttons[i + 1];
+  }
+  buttons[buttons.length - 1] = temp;
+
+  // 선택된 버튼 인덱스는 항상 가운데 (1)
+  selectedSubButtonIndices[shopIndex][group] = 1;
+}
+
+// 스크롤 이벤트 처리
+void mouseDragged() {
+  if (!isLocked) { // 버튼 클릭으로 잠겨있지 않을 때만 스크롤 처리
     npos += mouseY - pmouseY; // npos를 업데이트 (드래그 위치를 목표로 설정)
   }
 }
 
-// 마우스 릴리즈 이벤트
 void mouseReleased() {
-  isLocked = false;
+  isLocked = false; // 스크롤 잠금 해제
 }

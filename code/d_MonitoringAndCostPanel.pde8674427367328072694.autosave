@@ -7,10 +7,10 @@ int[] currentCostImageIndex = {0, 0, 0, 0}; // 각 점포의 현재 선택된 �
 
 
 // 스와이프 관련 변수
-float swipeX = 0;  // 현재 스와이프 위치
-float targetSwipeX = 0;  // 목표 스와이프 위치
-float swipeSensitivity = 0.3;  // 스와이프 감도
-int currentShopIndex = 0;  // 현재 점포 인덱스
+float swipeX = 0;             // 현재 스와이프 위치
+float targetSwipeX = 0;       // 목표 스와이프 위치
+float swipeSensitivity = 0.3; // 스와이프 감도
+int currentShopIndex = 0;     // 현재 점포 인덱스
 String[] shops = {
   "천안시 페터널",
   "개포동 컨테이너",
@@ -366,26 +366,19 @@ void drawMonitoringAndCostPanel(float baseYOffset) {
     }
 
     popMatrix();
-    drawSwipeButtons(baseYOffset + 170);
+    float x = currentShopIndex * width; // 현재 점포의 X 위치
+    drawSwipeButtons(baseYOffset + 170, x, panelY);
+
 }
 
 
-// 각 점포별 버튼 상태를 저장하는 배열 (4개의 점포, 각 3개의 버튼)
-int[][] selectedSubButtonIndices = { 
-  {1, 1, 1, 1}, // 첫 번째 점포
-  {1, 1, 1, 1}, // 두 번째 점포
-  {1, 1, 1, 1}, // 세 번째 점포
-  {1, 1, 1, 1}  // 네 번째 점포
+int[] selectedSubButtonIndices = {1, 1, 1, 1}; // 각 그룹의 선택된 버튼 인덱스 (디폴트: 표준)
+String[][] subButtonTexts = {
+  {"절약", "표준", "최적"},
+  {"절약", "표준", "최적"},
+  {"절약", "표준", "최적"},
+  {"절약", "표준", "최적"}
 };
-
-
-String[][][] subButtonTexts = {
-  {{"절약", "표준", "최적"}, {"절약", "표준", "최적"}, {"절약", "표준", "최적"}, {"절약", "표준", "최적"}}, // 첫 번째 점포
-  {{"절약", "표준", "최적"}, {"절약", "표준", "최적"}, {"절약", "표준", "최적"}, {"절약", "표준", "최적"}}, // 두 번째 점포
-  {{"절약", "표준", "최적"}, {"절약", "표준", "최적"}, {"절약", "표준", "최적"}, {"절약", "표준", "최적"}}, // 세 번째 점포
-  {{"절약", "표준", "최적"}, {"절약", "표준", "최적"}, {"절약", "표준", "최적"}, {"절약", "표준", "최적"}}  // 네 번째 점포
-};
-
 
 
 void drawMonitoringText(float panelX, float panelY, float panelWidth, float panelHeight) {
@@ -406,33 +399,27 @@ void drawMonitoringText(float panelX, float panelY, float panelWidth, float pane
     }
 }
 
+
 void drawSubButtons(float panelX, float panelY, float panelWidth, float panelHeight) {
-  float sectionWidth = panelWidth / 4; // 각 그룹의 폭
+  float sectionWidth = panelWidth / subButtonTexts.length; // 각 그룹의 폭
   textAlign(CENTER, CENTER);
+  
+  for (int group = 0; group < subButtonTexts.length; group++) {
+    float groupX = panelX + (group * sectionWidth); // 그룹 시작 X 좌표
+    float groupY = panelY + panelHeight / 2 - 90; // 버튼 그룹 Y 위치
+    float buttonSpacing = sectionWidth / 3; // 버튼 간 가로 간격
 
-  for (int group = 0; group < 4; group++) {
-    float groupX = panelX + (group * sectionWidth) -2;
-    float groupY = panelY + panelHeight / 2-95;
-    float buttonSpacing = sectionWidth / 3;
+    for (int i = 0; i < subButtonTexts[group].length; i++) {
+      float buttonX = groupX + (i * buttonSpacing) + buttonSpacing / 2; // 버튼의 X 좌표
+      float buttonY = groupY; // 버튼의 Y 좌표
 
-    for (int i = 0; i < 3; i++) {
-      float buttonX = groupX + (i * buttonSpacing) + buttonSpacing / 2;
-      float buttonY = groupY;
-
-      // 현재 점포의 버튼 상태를 불러옴
-      int selectedIndex = selectedSubButtonIndices[currentShopIndex][group];
-      String buttonText = subButtonTexts[currentShopIndex][group][i]; // 현재 점포의 버튼 텍스트
-
-      textSize(selectedIndex == i ? 14 : 10);
-      fill(selectedIndex == i ? color(255) : color(200));
-      text(buttonText, buttonX, buttonY);
+      // 버튼 색상 및 강조 처리
+      textSize(selectedSubButtonIndices[group] == i ? 16 : 12); // 강조된 버튼 크기
+      fill(selectedSubButtonIndices[group] == i ? color(255) : 200); // 강조된 버튼은 노란색
+      text(subButtonTexts[group][i], buttonX, buttonY);
     }
   }
 }
-
-
-
-
 
 //이미지 출력띠
 void drawImagePanel(float offsetX, float offsetY, PImage img) {
@@ -443,8 +430,7 @@ void drawImagePanel(float offsetX, float offsetY, PImage img) {
 }
 
 
-// 꺾쇠 버튼 그리기
-void drawSwipeButtons(float baseYOffset) {
+void drawSwipeButtons(float baseYOffset, float x, float panelY) {
   fill(255); // 흰색 글씨
   textSize(28);
   textAlign(CENTER, CENTER);
@@ -458,20 +444,64 @@ void drawSwipeButtons(float baseYOffset) {
   if (currentShopIndex < shops.length - 1) {
     text(">", width - 30, baseYOffset); // 오른쪽 버튼 위치
   }
+
+  // 모니터링 박스와 코스트 박스
+  drawImagePanel(x + 6.6, panelY + 10, monitoringImg);
+  drawImagePanel(x - 11.1, panelY + 110, costImg);
+
+  // 점포 이름(박스 위 중앙)에 표시
+  textAlign(CENTER, CENTER);
+
+  for (int i = 0; i < shops.length; i++) {
+    if (i == currentShopIndex) {
+      // 현재 점포(흰색)
+      textFont(boldFont);
+      textSize(16);
+      fill(255);
+      text(shops[i], x + width / 2, panelY - 20);
+      textFont(regularFont);
+
+      // 이전 점포(회색) - 있으면 표시
+      if (i > 0) {
+        textSize(12);
+        fill(150);
+        text(shops[i - 1], x + width / 2 - 100, panelY - 20);
+      }
+
+      // 다음 점포(회색) - 있으면 표시
+      if (i < shops.length - 1) {
+        textSize(12);
+        fill(150);
+        text(shops[i + 1], x + width / 2 + 100, panelY - 20);
+      }
+    } else {
+      // 현재 인덱스가 아닌 패널의 희미한 이름
+      fill(120);
+      text(shops[i], x + width / 2, panelY - 20);
+    }
+  }
 }
 
 
-void changePlacePressed(float baseYOffset) {
-  float yOffset = baseYOffset; // 꺾쇠 버튼의 y 위치 계산
 
-  // 왼쪽 버튼 클릭
-  if (mouseX > 0 && mouseX < 50 && mouseY > yOffset - 50 && mouseY < yOffset + 50 && currentShopIndex > 0) {
+
+
+
+void changePlacePressed(float baseYOffset) {
+  float yOffset = baseYOffset; // 꺾쇠 버튼의 Y위치
+
+  // 왼쪽 버튼 클릭 감지
+  if (mouseX > 0 && mouseX < 50 &&
+      mouseY > yOffset - 50 && mouseY < yOffset + 50 &&
+      currentShopIndex > 0) {
     currentShopIndex--;
     updateGraphDataForShop();
   }
 
-  // 오른쪽 버튼 클릭
-  if (mouseX > width - 50 && mouseX < width && mouseY > yOffset - 50 && mouseY < yOffset + 50 && currentShopIndex < shops.length - 1) {
+  // 오른쪽 버튼 클릭 감지
+  if (mouseX > width - 50 && mouseX < width &&
+      mouseY > yOffset - 50 && mouseY < yOffset + 50 &&
+      currentShopIndex < shops.length - 1) {
     currentShopIndex++;
     updateGraphDataForShop();
   }
