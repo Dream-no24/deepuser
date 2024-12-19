@@ -1,3 +1,7 @@
+int dayOffset = 0; // 날짜를 올리는 오프셋 값
+int costThreshold = 2700; // 1500 // 날짜를 올리는 오프셋 값
+
+
 // 이미지 변수 선언
 PImage monitoringImg;
 PImage costImg;
@@ -17,13 +21,17 @@ String[] shops = {
   "남현동 컨테이너",
   "과천동 컨테이너"
 };
-// 텍스트 값과 단위 정의
-String[][] panelText = {
-  {" 52", "%"}, 
-  {" 27", "°"}, 
-  {"55", "lx"}, 
-  {"2.5", "h"}
+
+// 점포별 텍스트 값과 단위 정의
+String[][][] shopPanelTexts = {
+  {{" 52", " %"}, {"  27", "°"}, {"55", "lx"}, {"2.5", "h"}}, // 점포 1 데이터
+  {{" 47", " %"}, {"  30", "°"}, {"60", "lx"}, {"1.5", "h"}}, // 점포 2 데이터
+  {{" 50", " %"}, {"  25", "°"}, {"50", "lx"}, {"2.0", "h"}}, // 점포 3 데이터
+  {{" 48", " %"}, {"  22", "°"}, {"55", "lx"}, {"2.5", "h"}}  // 점포 4 데이터
 };
+String[][] panelText = shopPanelTexts[currentShopIndex];
+
+
 float[][] shopGraphData1 = new float[4][30]; // 그래프 데이터 1
 float[][] shopGraphData2 = new float[4][30]; // 그래프 데이터 2
 float[][] shopGraphData3 = new float[4][30]; // 그래프 데이터 3
@@ -80,7 +88,7 @@ void drawDynamicProgressBar(float x, float y, float width, float height, float[]
         sum += data[i];
     }
 
-    float maxSum = 2100; // 기준값 (70 * 30)
+    float maxSum = costThreshold; 
     float progressWidth = map(sum, 0, maxSum, 0, width); // 기본 프로그레스 바 길이 계산
 
     // 배경 바 그리기
@@ -165,19 +173,22 @@ void drawGraph30(float x, float y, float width, float height, int graphType, int
 
 void drawCostMonthText(float x, float y, float value) {
     fill(255); // 흰색 텍스트
-    textSize(14);
+    textSize(20);
     textAlign(LEFT, CENTER);
     text(int(value) + "원", x, y); // 정수로 변환하고 원 단위 출력
 }
 void drawProgressBar(float x, float y, float width, int dataLength) {
-    float maxLength = 30.0; // 최대 길이
-    float progressWidth = map(dataLength, 0, maxLength, 0, width+45); // 길이 비례 계산
+    int today = day() + dayOffset; // 오늘 날짜 가져오기
+    int maxDays = 30; // 최대 일수
+    float progressRatio = constrain((float) today / maxDays, 0, 1); // 오늘 날짜 비율 계산 (0 ~ 1)
+    float progressWidth = progressRatio * (width+30); // 비율에 따른 프로그레스 바 너비 계산
 
     // 프로그레스 바 그리기
     noStroke();
     fill(255); // 흰색
-    rect(x, y, progressWidth, 5, 5/2); // 동적으로 계산된 길이
+    rect(x, y, progressWidth, 5, 2.5); // 동적으로 계산된 길이
 }
+
 void drawNewProgressBar(float x, float y, float width, int progressValue) {
     float maxLength = 30.0; // 최대 값
     float progressWidth = map(progressValue, 0, maxLength, 0, width); // 값에 따른 길이 비례 계산
@@ -204,7 +215,7 @@ int[] getCurrentDateInfo() {
     java.util.Calendar calendar = java.util.Calendar.getInstance();
     
     
-    int dayOffset = 0; // 날짜를 올리는 오프셋 값
+    
     // 현재 날짜에 오프셋 추가
     calendar.add(java.util.Calendar.DAY_OF_MONTH, dayOffset);
     
@@ -216,7 +227,9 @@ int[] getCurrentDateInfo() {
 
 int getGraphLengthBasedOnDate() {
     int day = getCurrentDateInfo()[2]; // 현재 날짜의 '일' 가져오기
-    return constrain(day, 1, 30); // 그래프 길이를 1 ~ 30으로 제한
+    int graphLength = constrain(day, 1, 30); // 1 ~ 30 범위로 제한
+    graphLength = (int) (graphLength * 1.3); // 1.3배 적용
+    return constrain(graphLength, 1, 30); // 1 ~ 30 범위로 재제한
 }
 
 // 데이터 생성 범위를 날짜에 따라 조정
@@ -259,8 +272,8 @@ void drawCostImageWithGraph(float x, float panelY, int costIndex) {
         drawScaledImage(costX, costY, costImages[costIndex], 0.9);
 
         // Cost4 프로그레스 바 위치 오프셋
-        float progressBarX = costX + 40; // X 위치 조정
-        float progressBarY = costY + 150; // Y 위치 조정
+        float progressBarX = costX + 30; // X 위치 조정
+        float progressBarY = costY + 151; // Y 위치 조정
 
         // *** 추가된 작대기(라인) *** etc
         stroke(255); // 라인 색상
@@ -269,7 +282,7 @@ void drawCostImageWithGraph(float x, float panelY, int costIndex) {
         float lineLength = getCost4LineLength(); // 날짜 기반 선 길이 계산
         float lineY = progressBarY - 13; // 프로그레스바 위쪽에 선 추가
         line(progressBarX, lineY, progressBarX + lineLength - 20, lineY); // 라인 시작~끝 X 좌표
-        line(progressBarX, progressBarY, progressBarX + lineLength, progressBarY); // 라인 시작~끝 X 좌표
+        line(progressBarX, progressBarY, progressBarX + lineLength-5, progressBarY); // 라인 시작~끝 X 좌표
         noStroke(); // 기존 스타일로 복원
     } else {
         if (costIndex == 2) {
@@ -296,23 +309,23 @@ graphLength = getGraphLengthBasedOnDate();
 
 // Cost별 그래프 출력
 if (costIndex == 0) {
-    drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData1, graphLength);
+    drawGraph30(graphX-11, graphY, graphWidth-60, graphHeight, graphData1, graphLength);
     monthCost = calculateGraphSum(graphData1, graphLength); // monthCost에 결과 저장
 } else if (costIndex == 1) {
-    drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData2, graphLength);
+    drawGraph30(graphX-11, graphY, graphWidth-60, graphHeight, graphData2, graphLength);
     monthCost = calculateGraphSum(graphData2, graphLength); // monthCost에 결과 저장
 } else {
-    drawGraph30(graphX, graphY, graphWidth, graphHeight, graphData3, graphLength);
+    drawGraph30(graphX-11, graphY, graphWidth-60, graphHeight, graphData3, graphLength);
     monthCost = calculateGraphSum(graphData3, graphLength); // monthCost에 결과 저장
 }
 
 // 날짜 기반 동적 프로그레스 바 추가
 if (costIndex == 0) {
-    drawDynamicProgressBar(graphX - 3, graphY + graphHeight + 46, graphWidth + 44, 5, graphData1, 1);
+    drawDynamicProgressBar(graphX - 9, graphY + graphHeight + 48, graphWidth + 55, 6, graphData1, 1);
 } else if (costIndex == 1) {
-    drawDynamicProgressBar(graphX - 3, graphY + graphHeight + 46, graphWidth + 44, 5, graphData2, 2);
+    drawDynamicProgressBar(graphX - 9, graphY + graphHeight + 48, graphWidth + 55, 6, graphData2, 2);
 } else if (costIndex == 2) {
-    drawDynamicProgressBar(graphX - 3, graphY + graphHeight + 40, graphWidth + 44, 5, graphData3, 3);
+    drawDynamicProgressBar(graphX - 9, graphY + graphHeight + 42, graphWidth + 55, 6, graphData3, 3);
 }
 
 // costMonth 원 위치 오프셋 조정
@@ -326,7 +339,7 @@ if (costIndex == 2) {
 }
 
 // monthCost 값 출력 (계산된 값을 사용)
-drawCostMonthText(costMonthX, costMonthY, monthCost);
+drawCostMonthText(costMonthX-4, costMonthY-5, monthCost);
 
 
          // Cost별 프로그레스 바 위치 오프셋
@@ -338,11 +351,11 @@ drawCostMonthText(costMonthX, costMonthY, monthCost);
           progressBarY += 125; // Cost3 위치 미세 조정
         }
 
-        drawProgressBar(progressBarX, progressBarY, graphWidth, graphLength);
+        drawProgressBar(progressBarX-5, progressBarY+2, graphWidth, graphLength);
     }
 
     // 텍스트 버튼 출력 (Cost4 포함)
-    float panelWidth = 324;
+    float panelWidth = 315;
     float buttonBaseY = panelY + 160;
     drawSubButtons(x + 23, buttonBaseY-70, panelWidth, 50, currentShopIndex); // shopIndex 추가
 
@@ -351,14 +364,17 @@ drawCostMonthText(costMonthX, costMonthY, monthCost);
 
 
 
-void drawGraph30(float x, float y, float width, float height, float[] data, int maxLength) {
+void drawGraph30(float x, float y, float totalWidth, float height, float[] data, int maxLength) {
     noFill();
     stroke(255);
     strokeWeight(3);
+    
+    // 현재 날짜에 기반한 너비 계산
+    float adjustedWidth = map(maxLength, 1, 30, 0, totalWidth+45); // dAyOffset 비율 기반 너비
 
     beginShape();
     for (int i = 0; i < min(data.length, maxLength); i++) { // 최대 길이만큼만 사용
-        float px = x + map(i, 0, maxLength - 1, 0, width); // X 좌표 매핑
+        float px = x + map(i, 0, maxLength - 1, 0, adjustedWidth); // X 좌표 매핑
         float py = y + map(data[i], 0, 100, height, 0);    // Y 좌표 매핑 (반전)
         vertex(px, py);
     }
@@ -371,9 +387,9 @@ void drawScaledImage(float x, float y, PImage img, float scale) {
   if (img == null) return;
 
   // 원본 비율을 유지하면서 크기 조정
-  float panelWidth = img.width * scale;  // 폭을 scale로 조정
-  float panelHeight = img.height * scale; // 높이를 scale로 조정
-  image(img, x, y, panelWidth, panelHeight); // 이미지 출력
+  float panelWidth = img.width * 0.934;  // 폭을 scale로 조정
+  float panelHeight = img.height * 0.934; // 높이를 scale로 조정
+  image(img, x-7, y-5, panelWidth, panelHeight); // 이미지 출력
 }
 
 void loadMonitoringAndCostImages() {
@@ -400,7 +416,7 @@ void drawMonitoringAndCostPanel(float baseYOffset) {
         rect(19 + x, panelY, 324, 340, 20);
 
         // 모니터링 패널 이미지
-        drawImagePanel(x + 23, panelY + 10, monitoringImg);
+        image(monitoringImg, x + 23.5, panelY + 10, 315, 100);
 
         // 모니터링 텍스트 (숫자와 단위)
         float textX = x + 20;
@@ -419,7 +435,7 @@ void drawMonitoringAndCostPanel(float baseYOffset) {
       if (i == currentShopIndex) {
         // 현재 점포(흰색)
         textFont(boldFont);
-        textSize(16);
+        textSize(20);
         fill(255);
         text(shops[i], x + width/2, panelY - 20);
         textFont(regularFont);
@@ -429,7 +445,7 @@ void drawMonitoringAndCostPanel(float baseYOffset) {
           textSize(12);
           fill(150);
           // 원하는 위치만큼 좌우 간격을 조절한다. 여기서는 -120 정도로 가정
-          text(shops[i - 1], x + width/2 - 100, panelY - 20);
+          text(shops[i - 1], x + width/2 - 115, panelY - 17);
         }
   
         // 다음 점포(회색) - 있으면 표시
@@ -437,7 +453,7 @@ void drawMonitoringAndCostPanel(float baseYOffset) {
           textSize(12);
           fill(150);
           // 여기서는 +120 정도로 가정
-          text(shops[i + 1], x + width/2 + 100, panelY - 20);
+          text(shops[i + 1], x + width/2 + 115, panelY - 17);
         }
       } 
       else {
@@ -479,6 +495,9 @@ void drawMonitoringText(float panelX, float panelY, float panelWidth, float pane
     float sectionWidth = panelWidth / panelText.length; // 각 텍스트 블록의 폭
     textAlign(CENTER, CENTER);
     textSize(28);
+    
+    // 점포별 텍스트 가져오기
+    String[][] panelText = shopPanelTexts[currentShopIndex];
 
     // 숫자와 단위 출력
     for (int i = 0; i < panelText.length; i++) {
@@ -486,9 +505,9 @@ void drawMonitoringText(float panelX, float panelY, float panelWidth, float pane
         float y = panelY + panelHeight / 2; // 패널 중앙 Y 좌표
 
         fill(255); // 흰색 텍스트
-        text(panelText[i][0], x - 10, y + 23); // 숫자 출력
+        text(panelText[i][0], x - 6, y + 23); // 숫자 출력
         textSize(20);
-        text(panelText[i][1], x + 15, y + 26); // 단위 출력
+        text(panelText[i][1], x + 20, y + 26); // 단위 출력
         textSize(28); // 크기 복원
     }
 }
@@ -579,13 +598,12 @@ void rotateTexts(int group) {
 
 
 
-//이미지 출력띠
+//이미지 출력
 void drawImagePanel(float offsetX, float offsetY, PImage img) {
-    if (img == null) return; // 이미지가 없으면 반환
+    if (img == null) return; 
     float panelWidth = 315;
     float panelHeight = img.height * (panelWidth / img.width); // 비율에 맞게 높이 계산
     image(img, offsetX, offsetY, panelWidth, panelHeight);
-    // 텍스트 등 다른 요소를 넣고 싶다면 여기서 추가
   fill(255);
   textSize(11);
   textAlign(LEFT, TOP);

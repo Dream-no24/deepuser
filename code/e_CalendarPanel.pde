@@ -31,7 +31,7 @@ void drawCalendarPanel(float baseYOffset, boolean isReduced) {
   float currentHeight = originalHeight;
   if (selectedDay != -1 && scheduleData[selectedDay - 1] != null) {
     int extraSchedules = max(scheduleData[selectedDay - 1].length - 4, 0); // 초과 일정 개수
-    currentHeight += extraSchedules * 40; // 초과 일정당 높이 증가
+    currentHeight += extraSchedules * 60; // 초과 일정당 높이 증가
   }
   if (isCalendarMinimized) {
     currentHeight = currentHeight * scaleFactor + 15;

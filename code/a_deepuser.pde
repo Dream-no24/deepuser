@@ -90,7 +90,7 @@ void mousePressed() {
   float monitoringAndCostYOffset = 60 + 220 + 400 + pos; // 스크롤 오프셋 포함
   if (mouseX > 5 && mouseX < 365 && 
       mouseY > monitoringAndCostYOffset - 50 && mouseY < monitoringAndCostYOffset + 50) {
-    changePlacePressed(monitoringAndCostYOffset - 35); // 스크롤 오프셋을 고려한 클릭 처리
+    changePlacePressed(monitoringAndCostYOffset - 35); 
   }
 
   float panelWidth = 324;
@@ -102,14 +102,13 @@ for (int group = 0; group < 4; group++) { // 각 그룹 반복
 
   // 클릭 감지
   if (mouseX > groupX - sectionWidth / 2 && mouseX < groupX + sectionWidth / 2 &&
-      mouseY > buttonBaseY - 20 && mouseY < buttonBaseY + 20) {
-    // 클릭된 그룹의 텍스트 순환 (현재 점포 기준)
+      mouseY > buttonBaseY - 20 && mouseY < buttonBaseY + 1) {
+    // 클릭된 그룹의 텍스트 순환 
     rotateTextGroup(currentShopIndex, group); 
     println("Shop " + currentShopIndex + ", Group " + group + " text rotated!");
   }
 }
 
-  // 추가된 기능: 코스트 카드 아래 버튼 클릭 처리
   float buttonAreaHeight = 20; // 버튼 영역 높이
   float panelXOffset = 19; // 코스트 카드 시작 X 좌표
   float sectionWidthCost = panelWidth / 4; // 각 버튼의 가로 길이 (4개로 분할)
@@ -120,7 +119,7 @@ for (int group = 0; group < 4; group++) { // 각 그룹 반복
 
     // 클릭 감지 (코스트 카드 아래 버튼 자리)
     if (mouseX > buttonX && mouseX < buttonX + sectionWidthCost &&
-        mouseY > buttonY && mouseY < buttonY + buttonAreaHeight) {
+        mouseY > buttonY && mouseY < buttonY + buttonAreaHeight+10) {
       if (i < currentCostImageIndex.length) {
         currentCostImageIndex[currentShopIndex] = i; // Cost 이미지 전환
         println("Shop: " + shops[currentShopIndex] + " - Switched to Cost" + (i + 1));
